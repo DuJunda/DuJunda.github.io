@@ -5,19 +5,19 @@
   
 
   
-  <title>PRML笔记 | 杜俊达</title>
+  <title>RCNN | 杜俊达</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="我正在阅读《Pattern Recognition and Machine Learning》，简称PRML。以下是各章节的笔记，持续更新中。">
+  <meta name="description" content="提炼RCNN">
 <meta property="og:type" content="article">
-<meta property="og:title" content="PRML笔记">
-<meta property="og:url" content="http://yoursite.com/2019/09/21/PRML笔记/index.html">
+<meta property="og:title" content="RCNN">
+<meta property="og:url" content="http://yoursite.com/2019/09/21/RCNN/index.html">
 <meta property="og:site_name" content="杜俊达">
-<meta property="og:description" content="我正在阅读《Pattern Recognition and Machine Learning》，简称PRML。以下是各章节的笔记，持续更新中。">
+<meta property="og:description" content="提炼RCNN">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-21T10:21:14.467Z">
+<meta property="og:updated_time" content="2019-09-21T12:44:48.288Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="PRML笔记">
-<meta name="twitter:description" content="我正在阅读《Pattern Recognition and Machine Learning》，简称PRML。以下是各章节的笔记，持续更新中。">
+<meta name="twitter:title" content="RCNN">
+<meta name="twitter:description" content="提炼RCNN">
   
   
     <link rel="icon" href="/favicon.png">
@@ -62,10 +62,10 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-PRML笔记" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-RCNN" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2019/09/21/PRML笔记/" class="article-date">
-  <time datetime="2019-09-21T06:24:59.000Z" itemprop="datePublished">2019-09-21</time>
+    <a href="/2019/09/21/RCNN/" class="article-date">
+  <time datetime="2019-09-21T10:52:49.000Z" itemprop="datePublished">2019-09-21</time>
 </a>
     
   </div>
@@ -76,7 +76,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      PRML笔记
+      RCNN
     </h1>
   
 
@@ -84,13 +84,14 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>我正在阅读《Pattern Recognition and Machine Learning》，简称PRML。以下是各章节的笔记，持续更新中。</p>
+        <p>提炼<a href="https://arxiv.org/abs/1311.2524" target="_blank" rel="noopener">RCNN</a></p>
 <a id="more"></a>
-<ol>
-<li><a href="https://dujunda.github.io/files/PRML/1.pdf" target="_blank" rel="noopener">Introduction</a></li>
-<li><a href="https://dujunda.github.io/files/PRML/2.pdf" target="_blank" rel="noopener">Probablity Distribution</a></li>
-<li><a href="https://dujunda.github.io/files/PRML/3.pdf" target="_blank" rel="noopener">Linear Models for Regression</a></li>
-<li><a href="https://dujunda.github.io/files/PRML/4.pdf" target="_blank" rel="noopener">Linear Models for Classification</a></li>
+<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>使用CNN选取预选框，也就是目标定位【使用上下文信息以及超分辨率对小目标物体放大？】<br>当标注数据很少时，监督辅助任务（大的数据集）的预训练，然后进行特定领域（domain-specific）的微调（fine-tuning），会有效果提升</p>
+<h2 id="模块设计"><a href="#模块设计" class="headerlink" title="模块设计"></a>模块设计</h2><p>selective search生成很多候选框，CNN分类且提取特征，class-specific SVM根据特征判断某类别的候选框是正样本还是负样本。</p>
+<h2 id="测试过程"><a href="#测试过程" class="headerlink" title="测试过程"></a>测试过程</h2><p>每张图片生产很多候选框，将每个候选框wrap并输入CNN，得到类别（输出层）并得到特征（中间层），使用该类别对应的SVM根据特征对其打分。分别对每一类所有的候选框进行非极大抑制，也就是找到得分最高的区域，其他区域如果和他的IoU overlap大于某个阈值则拒绝该区域【具体实现时先排序，依次选择】</p>
+<h2 id="训练过程"><a href="#训练过程" class="headerlink" title="训练过程"></a>训练过程</h2><ol>
+<li>预训练：在辅助数据集上预训练CNN分类模型</li>
+<li>Domain-specific fine-tuning: 将预训练模型中1000类别的输出层换成N+1类别的输出层。如何确定预选框的类别（CNN标签）和判断他是正负样本（SVM标签）？将预选框与ground-truth的box比较，如果IoU&gt;=0.5，则是正样本也得到了相应的类别，否则是负样本。<br>在CNN与SVM训练过程中均使用了Hard Negative Mining的方法，因为负样本&gt;&gt;正样本，所以为了避免训练结果均为负样本，所以需要设置比例，本文设置正样本：负样本=1：3，训练使用的负样本是全体负样本的子集，而且这些负样本容易被分类为正样本。【具体实现时，第一步随机选负样本子集，之后迭代更新负样本子集】</li>
 </ol>
 
       
@@ -105,15 +106,20 @@
     
 <nav id="article-nav">
   
-    <a href="/2019/09/21/RCNN/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2019/09/21/fast-RCNN/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          RCNN
+          Fast RCNN
         
       </div>
     </a>
   
+  
+    <a href="/2019/09/21/PRML笔记/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">PRML笔记</div>
+    </a>
   
 </nav>
 

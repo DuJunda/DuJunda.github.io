@@ -5,19 +5,21 @@
   
 
   
-  <title>PRML笔记 | 杜俊达</title>
+  <title>Faster-RCNN | 杜俊达</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="我正在阅读《Pattern Recognition and Machine Learning》，简称PRML。以下是各章节的笔记，持续更新中。">
+  <meta name="description" content="提炼Faster-RCNN，参考https://zhuanlan.zhihu.com/p/31426458 摘要 使用RPN网络替换了Selective Search 算法，使用Fast R-CNN网络对RPN网络得到的候选框进行检测； 使用注意力机制将两个网络集合在了一起，RPN网络告诉合成的网络注意哪里。  导言 RPN网络是一个全卷积网络，利用多个anchor box来适应多尺度与多纵横比（">
 <meta property="og:type" content="article">
-<meta property="og:title" content="PRML笔记">
-<meta property="og:url" content="http://yoursite.com/2019/09/21/PRML笔记/index.html">
+<meta property="og:title" content="Faster-RCNN">
+<meta property="og:url" content="http://yoursite.com/2019/09/21/Faster-RCNN/index.html">
 <meta property="og:site_name" content="杜俊达">
-<meta property="og:description" content="我正在阅读《Pattern Recognition and Machine Learning》，简称PRML。以下是各章节的笔记，持续更新中。">
+<meta property="og:description" content="提炼Faster-RCNN，参考https://zhuanlan.zhihu.com/p/31426458 摘要 使用RPN网络替换了Selective Search 算法，使用Fast R-CNN网络对RPN网络得到的候选框进行检测； 使用注意力机制将两个网络集合在了一起，RPN网络告诉合成的网络注意哪里。  导言 RPN网络是一个全卷积网络，利用多个anchor box来适应多尺度与多纵横比（">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-21T10:21:14.467Z">
+<meta property="og:image" content="https://dujunda.github.io/files/images/Faster-RCNN.png">
+<meta property="og:updated_time" content="2019-09-21T13:00:33.314Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="PRML笔记">
-<meta name="twitter:description" content="我正在阅读《Pattern Recognition and Machine Learning》，简称PRML。以下是各章节的笔记，持续更新中。">
+<meta name="twitter:title" content="Faster-RCNN">
+<meta name="twitter:description" content="提炼Faster-RCNN，参考https://zhuanlan.zhihu.com/p/31426458 摘要 使用RPN网络替换了Selective Search 算法，使用Fast R-CNN网络对RPN网络得到的候选框进行检测； 使用注意力机制将两个网络集合在了一起，RPN网络告诉合成的网络注意哪里。  导言 RPN网络是一个全卷积网络，利用多个anchor box来适应多尺度与多纵横比（">
+<meta name="twitter:image" content="https://dujunda.github.io/files/images/Faster-RCNN.png">
   
   
     <link rel="icon" href="/favicon.png">
@@ -62,10 +64,10 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-PRML笔记" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-Faster-RCNN" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2019/09/21/PRML笔记/" class="article-date">
-  <time datetime="2019-09-21T06:24:59.000Z" itemprop="datePublished">2019-09-21</time>
+    <a href="/2019/09/21/Faster-RCNN/" class="article-date">
+  <time datetime="2019-09-21T12:48:02.000Z" itemprop="datePublished">2019-09-21</time>
 </a>
     
   </div>
@@ -76,7 +78,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      PRML笔记
+      Faster-RCNN
     </h1>
   
 
@@ -84,14 +86,16 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>我正在阅读《Pattern Recognition and Machine Learning》，简称PRML。以下是各章节的笔记，持续更新中。</p>
-<a id="more"></a>
-<ol>
-<li><a href="https://dujunda.github.io/files/PRML/1.pdf" target="_blank" rel="noopener">Introduction</a></li>
-<li><a href="https://dujunda.github.io/files/PRML/2.pdf" target="_blank" rel="noopener">Probablity Distribution</a></li>
-<li><a href="https://dujunda.github.io/files/PRML/3.pdf" target="_blank" rel="noopener">Linear Models for Regression</a></li>
-<li><a href="https://dujunda.github.io/files/PRML/4.pdf" target="_blank" rel="noopener">Linear Models for Classification</a></li>
-</ol>
+        <p>提炼<a href="https://arxiv.org/abs/1506.01497" target="_blank" rel="noopener">Faster-RCNN</a>，参考<a href="https://zhuanlan.zhihu.com/p/31426458" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/31426458</a></p>
+<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><ul>
+<li>使用RPN网络替换了Selective Search 算法，使用Fast R-CNN网络对RPN网络得到的候选框进行检测；</li>
+<li>使用注意力机制将两个网络集合在了一起，RPN网络告诉合成的网络注意哪里。</li>
+</ul>
+<h2 id="导言"><a href="#导言" class="headerlink" title="导言"></a>导言</h2><ul>
+<li>RPN网络是一个全卷积网络，利用多个anchor box来适应多尺度与多纵横比（aspect radio）而不用枚举图片，尺度，纵横比。</li>
+<li>为了融合两个网络，训练时在提取候选框任务与目标检测任务中切换微调</li>
+</ul>
+<h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><p><img src="https://dujunda.github.io/files/images/Faster-RCNN.png" alt="Aaron Swartz"></p>
 
       
     </div>
@@ -105,15 +109,11 @@
     
 <nav id="article-nav">
   
-    <a href="/2019/09/21/RCNN/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          RCNN
-        
-      </div>
-    </a>
   
+    <a href="/2019/09/21/SPPNet/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">SPPNet</div>
+    </a>
   
 </nav>
 

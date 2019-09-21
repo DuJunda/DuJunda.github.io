@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Fast RCNN | 杜俊达</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="提炼Fast RCNN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fast RCNN">
+<meta property="og:url" content="http://yoursite.com/2019/09/21/fast-RCNN/index.html">
+<meta property="og:site_name" content="杜俊达">
+<meta property="og:description" content="提炼Fast RCNN">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-09-21T12:45:00.229Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Fast RCNN">
+<meta name="twitter:description" content="提炼Fast RCNN">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">杜俊达</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/aboutme">About Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-fast-RCNN" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/09/21/fast-RCNN/" class="article-date">
+  <time datetime="2019-09-21T11:02:37.000Z" itemprop="datePublished">2019-09-21</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Fast RCNN
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+
+<p>提炼<a href="https://arxiv.org/abs/1504.08083" target="_blank" rel="noopener">Fast RCNN</a></p>
+<a id="more"></a>
+<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>目标检测需要目标的准确定位，于是有了两个困难</p>
+<ol>
+<li>有很多的候选框</li>
+<li>这些候选框只提供了粗略的位置估计，需要refine来获得准确的定位</li>
+</ol>
+<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><h3 id="The-RoI-pooling-layer"><a href="#The-RoI-pooling-layer" class="headerlink" title="The RoI pooling layer"></a>The RoI pooling layer</h3><p>RoI pooling相当于单尺度的空间金字塔池化层</p>
+<h3 id="Initializing-from-pre-trained-model"><a href="#Initializing-from-pre-trained-model" class="headerlink" title="Initializing from pre-trained model"></a>Initializing from pre-trained model</h3><p>由预训练的网络转化为Fast R-CNN网络时，需要进行如下转换：第一，把最后一层的max pooling换为RoI pooling（超参数为H*W）；第二，网络最后的全连接层和softmax层换位变成两个分支，一个分支是全连接层和K+1路的softmax分类器，一个分支是类特定的bounding-box回归器；第三，网络被修改为接受两个数据输入，一个是多个图片，一个是这些图片的RoI</p>
+<h2 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h2><p>Fast R-CNN可以更新网络中的所有参数，这使得准确度得到了大幅度提升。</p>
+<ol>
+<li>首先阐述（elucidate）SPPNet为什么不能更新空间金字塔层之前网络的参数：因为当RoI来自不同图片的时候，反向传播效率很低，效率低的原因是RoI可能会有十分大的感受野（通常是整张图片，与卷积核大小和步长有关，计算公式？），然后不同的图片的特征计算又不共享所以计算效率很低</li>
+<li>本文提出了一个效率更高的训练方式，一个由R个RoIs构成的batch中，令这些RoIs只来源于N（较小）个图片，由于同一个张图片的计算共享，所以这样的速度是从R个不同图片取样的速度的R/N倍。<br>另外将SVM评分阶段换成了bounding-box回归器，流水线化了训练过程<br>Loss（Multi-task loss）的定义：<br>$$L(p, u, t^{u}, v)=L_{c l s}(p, u)+  \lambda[u \geq 1] L_{loc} (t^{u},v),$$其中\(L_{cls}(p,u)=-log{p_u},L_{loc}(t^u,v)=\sum_{i\in{x,y,w,h}}{smooth_{L_1}(t_i^u-v_i)},% \)<br>\(<!--[CDATA[
+smooth_{L_1}(x)=\left\{\begin{aligned}
+& 0.5x^2  &if \  |x| < 1\\
+& |x|-0.5  &otherwise
+\end{aligned}
+\right. %]]-->\)<br>\(p\)是一个K+1维向量，表示将该window分到K类中每一类的概率（此外还需再加上background类）。\(u\)和\(v\)分别表示该window被标注的ground-truth的类别和被标注的ground-truth的四元组\((x,y,w,h)\)，t表示Fast R-CNN使用该window预测得到的各个类别对应的四元组，\(t^u\)表示类别\(u\)对应的四元组\((t^u_x,t^u_y,t^u_w,t^u_h)\)。</li>
+<li>Mini-batch sample：使用了hard sample mining【负样本与ground truth的IoU为\([0.1, 0.5)\)】，负样本(背景)的\(u=0\)，正样本的\(u\geq 0\)</li>
+<li>SVD分解以加速全连接层</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/09/21/SPPNet/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          SPPNet
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/09/21/RCNN/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">RCNN</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/09/21/Faster-RCNN/">Faster-RCNN</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/21/SPPNet/">SPPNet</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/21/fast-RCNN/">Fast RCNN</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/21/RCNN/">RCNN</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/21/PRML笔记/">PRML笔记</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 杜俊达<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/aboutme" class="mobile-nav-link">About Me</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
