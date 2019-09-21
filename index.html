@@ -83,70 +83,11 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>提炼<a href="https://arxiv.org/abs/1506.01497" target="_blank" rel="noopener">Faster-RCNN</a>，参考<a href="https://zhuanlan.zhihu.com/p/31426458" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/31426458</a></p>
-<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><ul>
-<li>使用RPN网络替换了Selective Search 算法，使用Fast R-CNN网络对RPN网络得到的候选框进行检测；</li>
-<li>使用注意力机制将两个网络集合在了一起，RPN网络告诉合成的网络注意哪里。</li>
-</ul>
-<h2 id="导言"><a href="#导言" class="headerlink" title="导言"></a>导言</h2><ul>
-<li>RPN网络是一个全卷积网络，利用多个anchor box来适应多尺度与多纵横比（aspect radio）而不用枚举图片，尺度，纵横比。</li>
-<li>为了融合两个网络，训练时在提取候选框任务与目标检测任务中切换微调</li>
-</ul>
-<h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><p><img src="https://dujunda.github.io/files/images/Faster-RCNN.png" alt="Aaron Swartz"></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-SPPNet" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/09/21/SPPNet/" class="article-date">
-  <time datetime="2019-09-21T12:47:40.000Z" itemprop="datePublished">2019-09-21</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
         
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/09/21/SPPNet/">SPPNet</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>提炼<a href="https://arxiv.org/abs/1406.4729" target="_blank" rel="noopener">SPP-Net</a>,参考<a href="https://zhuanlan.zhihu.com/p/27485018" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/27485018</a></p>
-<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><ul>
-<li>无论输入多大产生固定长度的输出（不用wrap或者crop）；多级空间特征（每级对应一个bin size，或者说window size），也就是不同的窗口大小，对图片变形具有鲁棒性；可以以可变比例来提取特征，例如可以有4<em>4格子，也就可以有8</em>4格子</li>
-<li>Pooling layer一般加在feature map后</li>
-<li>训练时可以提供多尺度的图片以提升尺度不变性和减少过拟合，每一个Epoch使用固定的输入大小，不同Epoch的输入大小不同</li>
-</ul>
-<h2 id="SPP-Net-for-object-detection"><a href="#SPP-Net-for-object-detection" class="headerlink" title="SPP-Net for object detection"></a>SPP-Net for object detection</h2><ul>
-<li><p>使用selective search在原图中找到很多候选框，使用CNN对原图进行特征提取得到一个feature map，然后将原图中的每个候选框的位置映射到feature map中（原图与feature map的位置关系只由stride决定），得到了每个候选框在feature map中对应的特征框后，将特征框经过金字塔池化层得到固定大小的特征层，然后再这些固定大小特征进行处理。</p>
-</li>
-<li><p>多尺度金字塔池化层优化：先将图片resize到五个尺度：使得min(w,h)∈{480,576,688,864,1200}，加自己6个。将六个尺度对应的image pyramid输入CNN，得到不同尺度的feature map，再找到每个候选框在不同尺度feature map中的位置也就是ROI框后，如何将不同尺度的ROI框结合起来呢，有两种方式</p>
-<ol>
-<li>将不同ROI框堆叠成固定长度的向量（channel-by-channel pooling）</li>
-<li>选择六个ROI框中 尺度大小最接近224x224 ROI框resize成224x224的feature map，然后变成固定长度的向量</li>
-</ol>
-</li>
-<li><p>Fine-tune时固定金字塔池化层之前的CNN提特征层，只对后面的全连接层微调。【为什么呢？在Fast RCNN中有解释】</p>
-</li>
-</ul>
-
+          <p class="article-more-link">
+            <a href="/2019/09/21/Faster-RCNN/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
@@ -244,6 +185,47 @@
 
 
   
+    <article id="post-SPPNet" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/09/21/SPPNet/" class="article-date">
+  <time datetime="2019-09-21T10:47:40.000Z" itemprop="datePublished">2019-09-21</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/09/21/SPPNet/">SPPNet</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>提炼<a href="https://arxiv.org/abs/1406.4729" target="_blank" rel="noopener">SPP-Net</a>,参考<a href="https://zhuanlan.zhihu.com/p/27485018" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/27485018</a></p>
+        
+          <p class="article-more-link">
+            <a href="/2019/09/21/SPPNet/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-PRML笔记" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/09/21/PRML笔记/" class="article-date">
@@ -320,15 +302,15 @@
           </li>
         
           <li>
-            <a href="/2019/09/21/SPPNet/">SPPNet</a>
-          </li>
-        
-          <li>
             <a href="/2019/09/21/fast-RCNN/">Fast RCNN</a>
           </li>
         
           <li>
             <a href="/2019/09/21/RCNN/">RCNN</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/21/SPPNet/">SPPNet</a>
           </li>
         
           <li>
