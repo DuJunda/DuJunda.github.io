@@ -5,19 +5,19 @@
   
 
   
-  <title>SPPNet | 杜俊达</title>
+  <title>YOLO | 杜俊达</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="提炼SPP-Net,参考https://zhuanlan.zhihu.com/p/27485018">
+  <meta name="description" content="提炼YOLO">
 <meta property="og:type" content="article">
-<meta property="og:title" content="SPPNet">
-<meta property="og:url" content="http://yoursite.com/2019/09/21/SPPNet/index.html">
+<meta property="og:title" content="YOLO">
+<meta property="og:url" content="http://yoursite.com/2019/09/21/YOLO/index.html">
 <meta property="og:site_name" content="杜俊达">
-<meta property="og:description" content="提炼SPP-Net,参考https://zhuanlan.zhihu.com/p/27485018">
+<meta property="og:description" content="提炼YOLO">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-21T13:05:42.313Z">
+<meta property="og:updated_time" content="2019-09-21T13:17:13.860Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="SPPNet">
-<meta name="twitter:description" content="提炼SPP-Net,参考https://zhuanlan.zhihu.com/p/27485018">
+<meta name="twitter:title" content="YOLO">
+<meta name="twitter:description" content="提炼YOLO">
   
   
     <link rel="icon" href="/favicon.png">
@@ -62,10 +62,10 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-SPPNet" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-YOLO" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2019/09/21/SPPNet/" class="article-date">
-  <time datetime="2019-09-21T11:02:17.000Z" itemprop="datePublished">2019-09-21</time>
+    <a href="/2019/09/21/YOLO/" class="article-date">
+  <time datetime="2019-09-21T13:08:22.000Z" itemprop="datePublished">2019-09-21</time>
 </a>
     
   </div>
@@ -76,7 +76,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      SPPNet
+      YOLO
     </h1>
   
 
@@ -84,24 +84,27 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>提炼<a href="https://arxiv.org/abs/1406.4729" target="_blank" rel="noopener">SPP-Net</a>,参考<a href="https://zhuanlan.zhihu.com/p/27485018" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/27485018</a></p>
+        <p>提炼<a href="https://arxiv.org/abs/1506.02640" target="_blank" rel="noopener">YOLO</a></p>
 <a id="more"></a>
-<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><ul>
-<li>无论输入多大产生固定长度的输出（不用wrap或者crop）；多级空间特征（每级对应一个bin size，或者说window size），也就是不同的窗口大小，对图片变形具有鲁棒性；可以以可变比例来提取特征，例如可以有4<em>4格子，也就可以有8</em>4格子</li>
-<li>Pooling layer一般加在feature map后</li>
-<li>训练时可以提供多尺度的图片以提升尺度不变性和减少过拟合，每一个Epoch使用固定的输入大小，不同Epoch的输入大小不同</li>
+<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>把目标检测问题定为 一个对空间分离的bounding box的回归问题<br>【本质上是将图像的方格根据相对空间位置映射到Feature Map上，类似于RCNN将候选框映射到Feature Map上，YOLO的映射关系更优，因为它进行了反向传播】</p>
+<h2 id="导言"><a href="#导言" class="headerlink" title="导言"></a>导言</h2><p>YOLO在目标检测时向整张图片溯源，因为每一个格子的感受野为整张图片，（？）有着更低的背景错分率，具有较高的泛化性</p>
+<h2 id="统一的检测"><a href="#统一的检测" class="headerlink" title="统一的检测"></a>统一的检测</h2><ul>
+<li>每个格子的目标向量维度为C+B*(4+1)，C为数据集类别个数，B为Anchor box种类，4代表bounding box的参数，1代表这个anchor box 是否有物体</li>
+<li>首先格子里出现物体才会处罚类别的loss</li>
+<li>然后不仅出现而且bounding box对物体负责【有最高的IoU】才会处罚box参数与是否有物体的loss<br>对于不出现物体的格子会处罚是否有物体的loss，而且权重比较小</li>
 </ul>
-<h2 id="SPP-Net-for-object-detection"><a href="#SPP-Net-for-object-detection" class="headerlink" title="SPP-Net for object detection"></a>SPP-Net for object detection</h2><ul>
-<li><p>使用selective search在原图中找到很多候选框，使用CNN对原图进行特征提取得到一个feature map，然后将原图中的每个候选框的位置映射到feature map中（原图与feature map的位置关系只由stride决定），得到了每个候选框在feature map中对应的特征框后，将特征框经过金字塔池化层得到固定大小的特征层，然后再这些固定大小特征进行处理。</p>
-</li>
-<li><p>多尺度金字塔池化层优化：先将图片resize到五个尺度：使得min(w,h)∈{480,576,688,864,1200}，加自己6个。将六个尺度对应的image pyramid输入CNN，得到不同尺度的feature map，再找到每个候选框在不同尺度feature map中的位置也就是ROI框后，如何将不同尺度的ROI框结合起来呢，有两种方式</p>
-<ol>
-<li>将不同ROI框堆叠成固定长度的向量（channel-by-channel pooling）</li>
-<li>选择六个ROI框中 尺度大小最接近224x224 ROI框resize成224x224的feature map，然后变成固定长度的向量</li>
+<h2 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h2><ol>
+<li>首先在ImageNet上预训练【需要一点修改，等结束之后再换回来，保留相同的部分】，</li>
+<li>在预训练时采用224*224的分辨率输入，在检测时采用448*448的分辨率的输入</li>
+<li>对平移相关的两个参数采用他们的平方差，对放缩相关的两个参数采用他们根号的平方差，</li>
+<li>由于背景格子过多，所以对背景格子的处罚是否有物体的loss加上权重，否则将倾向于预测所有格子不含物体</li>
+<li>每个格子有很多anchor box，我们只处罚对物体负责的anchor box，负责的标准是预测结果/√anchor box？与GT有最高的IoU【anchor box相当于是先验，思路是利用anchor box降低神经网络学习的难度】<br>学习率不断变化，第一个epoch由低到高，后面几十个epoch由高到低，后面几十个更低</li>
 </ol>
-</li>
-<li><p>Fine-tune时固定金字塔池化层之前的CNN提特征层，只对后面的全连接层微调。【为什么呢？在Fast RCNN中有解释】</p>
-</li>
+<p><strong>测试时使用了极大值抑制</strong></p>
+<h2 id="局限性"><a href="#局限性" class="headerlink" title="局限性"></a>局限性</h2><ul>
+<li>小物体很难检测</li>
+<li>无法泛化到新的类别检测和新的box</li>
+<li>对于大的box和小的box误差影响不同，对于小的box误差影响大</li>
 </ul>
 
       
@@ -116,19 +119,19 @@
     
 <nav id="article-nav">
   
-    <a href="/2019/09/21/fast-RCNN/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2019/09/21/YOLO-v2/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          Fast RCNN
+          YOLO-v2
         
       </div>
     </a>
   
   
-    <a href="/2019/09/21/RCNN/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2019/09/21/Faster-RCNN/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">RCNN</div>
+      <div class="article-nav-title">Faster RCNN</div>
     </a>
   
 </nav>

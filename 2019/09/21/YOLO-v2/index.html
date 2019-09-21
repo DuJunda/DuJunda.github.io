@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>YOLO-v2 | 杜俊达</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="提炼YOLO-v2，参考https://zhuanlan.zhihu.com/p/25167153">
+<meta property="og:type" content="article">
+<meta property="og:title" content="YOLO-v2">
+<meta property="og:url" content="http://yoursite.com/2019/09/21/YOLO-v2/index.html">
+<meta property="og:site_name" content="杜俊达">
+<meta property="og:description" content="提炼YOLO-v2，参考https://zhuanlan.zhihu.com/p/25167153">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-09-21T13:20:39.885Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="YOLO-v2">
+<meta name="twitter:description" content="提炼YOLO-v2，参考https://zhuanlan.zhihu.com/p/25167153">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">杜俊达</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/aboutme">About Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-YOLO-v2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/09/21/YOLO-v2/" class="article-date">
+  <time datetime="2019-09-21T13:08:42.000Z" itemprop="datePublished">2019-09-21</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      YOLO-v2
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>提炼<a href="https://arxiv.org/abs/1506.02640" target="_blank" rel="noopener">YOLO-v2</a>，参考<a href="https://zhuanlan.zhihu.com/p/25167153" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/25167153</a></p>
+<a id="more"></a>
+<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><ul>
+<li>检测9000类物体，加入了很多改进方法，多尺度训练方法（速度与准确度的折衷，尺度越大速度越慢准确度越高）</li>
+<li>准确度和速度均超过了Faster-RCNN</li>
+<li>在目标检测与分类数据集上联合训练，使得在分类数据集上也能进行目标检测（在ImageNet上达到了19.7mAP，在检测数据中未标注类上达到了16.0mAP），使用检测数据集来学习定位物体，使用分类数据集提高词汇量和鲁棒性</li>
+</ul>
+<h2 id="更好"><a href="#更好" class="headerlink" title="更好"></a>更好</h2><ol>
+<li>YOLO相对于两阶段定位错误较多，召回率较低</li>
+<li>BN一定程度上替换了其他的正则化方法（去掉了dropout），并且提高了收敛速度 ↑2%mAP</li>
+<li>针对448<em>448分辨率的图片进行分类，之前是对224</em>224分类，对448<em>448检测，网络需要适应分辨率的切换；改为448</em>448分类后，↑4%mAP</li>
+<li>Anchor box：对feature map上每个点的维度为（C+5）*B。相对于YOLO，将类别预测放到了每个Anchor box中；这个方法微弱减小了mAP但大幅度提高了召回率</li>
+<li>对GT boxes进行聚类得到Anchor box（prior），距离的度量指标为1-IoU，如果使用四个参数的欧几里得距离，那么大的box的误差会大于小的box的误差，与我们的目标（更大的IoU）不相符；而且关于bounding box位置参数，预测目标是Anchor box与GT的差距【本质上是通过增加Anchor box先验降低神经网络学习难度】；↑5%mAP</li>
+<li>不同细粒度特征融合，为了得到不同resolution的feature map，从而使得提取的特征更加完善，YOLO v2将前一个输出为26<em>26的layer作为passthrough layer，然后在具体实现时将它切成多个13</em>13的feature maps，这样再与之前的13*13的输出堆叠成多个feature maps一起进行预测。这样可以获得大约1%的提升。</li>
+<li>多尺度训练，因为降采样比例为32，所以输入的图片大小为32的倍数，每10个Epoch随机选一个尺度</li>
+</ol>
+<h2 id="更快"><a href="#更快" class="headerlink" title="更快"></a>更快</h2><p>本文利用BN与1*1 conv提出了一个新的网络Darknet用来提取特征，计算量比GoogLenet更小，分类准确度比VGG-16更高</p>
+<h3 id="分类任务的训练："><a href="#分类任务的训练：" class="headerlink" title="分类任务的训练："></a>分类任务的训练：</h3><p>LR=0.1–&gt;0.001(epoch&gt;10)，weight decay=0.0005，momentum = 0.9；随机裁剪旋转，色调，饱和度和曝光调整；input size 224<em>224–&gt;448</em>448</p>
+<h3 id="检测人物的训练："><a href="#检测人物的训练：" class="headerlink" title="检测人物的训练："></a>检测人物的训练：</h3><p>修改分类网络结构以适应检测任务，保留相同的部分，在不同的Epoch采用不同的学习率</p>
+<h2 id="更强"><a href="#更强" class="headerlink" title="更强"></a>更强</h2><ul>
+<li>能预测9000类物体，将WordNet转化为WordTree（以添加最少边的原则选择路径），将类别标签设为WordTree所有节点的（条件）概率，如果物体是某个大类下的子类，那么大类和子类节点的标签均为1。</li>
+<li>测试时确定目标类别的方法：由根节点开始根据最大条件概率选择子类，等路径上节点的概率乘积小于某阈值或者到达叶节点时停止。</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/09/21/YOLO/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">YOLO</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/09/21/YOLO-v2/">YOLO-v2</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/21/YOLO/">YOLO</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/21/Faster-RCNN/">Faster RCNN</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/21/fast-RCNN/">Fast RCNN</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/21/SPPNet/">SPPNet</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 杜俊达<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/aboutme" class="mobile-nav-link">About Me</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
