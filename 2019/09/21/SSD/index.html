@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>SSD | 杜俊达</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="提炼SSD，参考https://zhuanlan.zhihu.com/p/33544892 摘要将bounding box的输出空间离散到不同特征图上不同特征点的不同Anchor box上  为了预测bounding box，学习目标定义为由anchor box到GT的转化量和类别概率，维度为B*(4+(C+1))，将无物体作为了一种类别【先验anchor box与定义目标为差异量本质是辅助网络学">
+<meta name="keywords" content="杜俊达,计算机科学与技术,哈尔滨工业大学,计算机视觉">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SSD">
+<meta property="og:url" content="http://yoursite.com/2019/09/21/SSD/index.html">
+<meta property="og:site_name" content="杜俊达">
+<meta property="og:description" content="提炼SSD，参考https://zhuanlan.zhihu.com/p/33544892 摘要将bounding box的输出空间离散到不同特征图上不同特征点的不同Anchor box上  为了预测bounding box，学习目标定义为由anchor box到GT的转化量和类别概率，维度为B*(4+(C+1))，将无物体作为了一种类别【先验anchor box与定义目标为差异量本质是辅助网络学">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://dujunda.github.io/files/images/SSD.png">
+<meta property="og:updated_time" content="2019-09-23T03:33:39.444Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SSD">
+<meta name="twitter:description" content="提炼SSD，参考https://zhuanlan.zhihu.com/p/33544892 摘要将bounding box的输出空间离散到不同特征图上不同特征点的不同Anchor box上  为了预测bounding box，学习目标定义为由anchor box到GT的转化量和类别概率，维度为B*(4+(C+1))，将无物体作为了一种类别【先验anchor box与定义目标为差异量本质是辅助网络学">
+<meta name="twitter:image" content="https://dujunda.github.io/files/images/SSD.png">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">杜俊达</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/aboutme">About Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-SSD" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/09/21/SSD/" class="article-date">
+  <time datetime="2019-09-21T13:08:41.000Z" itemprop="datePublished">2019-09-21</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      SSD
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>提炼<a href="https://arxiv.org/abs/1512.02325" target="_blank" rel="noopener">SSD</a>，参考<a href="https://zhuanlan.zhihu.com/p/33544892" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/33544892</a></p>
+<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>将bounding box的输出空间离散到不同特征图上不同特征点的不同Anchor box上</p>
+<ol>
+<li>为了预测bounding box，学习目标定义为由anchor box到GT的转化量和类别概率，维度为B*(4+(C+1))，将无物体作为了一种类别【先验anchor box与定义目标为差异量本质是辅助网络学习，降低学习难度】</li>
+<li>从网络中取不同尺度的特征图，每个特征图上anchor box/先验box的种类个数不同【为了检测不同大小的物体，feature map越大，其anchor box越小，就能检测小物体】</li>
+<li>将YOLO的全连接层去掉，换成了1*1卷积【将全连接关系稀疏化，但是利用卷积的并行计算大大提高了速度，再增加一些卷积即可将稀疏化的信息损失弥补回来】<h2 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h2></li>
+<li>匹配策略，也就是由GT找到每个特征点对应的目标向量，首先要确定该特征点对应的anchor box是否有物体，如果该anchor box与某一GT的IoU大于0.5，那么该anchor box的目标向量对应该GT，如果该anchor box与多个GT的IoU大于0.5，那么选择IoU最大的GT。特例（少到可以不用考虑，因为SDD的anchor box为密集取样）：如果某一GT的与所有box的最大IoU都小于0.5，而且最大IoU对应的box与另一个GT的IoU大于0.5，那么应该选择前者。</li>
+<li>损失函数定义：与Fast RCNN类似。有类别损失与位置损失，位置损失为anchor box与GT的差异量；对类别损失与位置损失有不同的权重；正负样本取样采用hard negative mining。</li>
+<li>数据扩增：水平翻转（horizontal flip），随机裁剪加颜色扭曲（random crop &amp; color distortion），随机采集块域（Randomly sample a patch）（获取小目标训练样本）<h2 id="预测"><a href="#预测" class="headerlink" title="预测"></a>预测</h2></li>
+<li>过滤置信度&lt;0.5的目标向量，最多保留400个</li>
+<li>结合anchor box的先验将目标向量解码得到预测框</li>
+<li>非极大抑制过滤重合度较大的预测框<h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><img src="https://dujunda.github.io/files/images/SSD.png" alt="SSD"></li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/09/21/YOLO-v2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          YOLO-v2
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/09/21/YOLO/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">YOLO</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/09/21/YOLO-v2/">YOLO-v2</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/21/SSD/">SSD</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/21/YOLO/">YOLO</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/21/Faster-RCNN/">Faster RCNN</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/21/fast-RCNN/">Fast RCNN</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 杜俊达<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/aboutme" class="mobile-nav-link">About Me</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

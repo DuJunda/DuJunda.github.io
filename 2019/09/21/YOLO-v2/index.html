@@ -15,7 +15,7 @@
 <meta property="og:site_name" content="杜俊达">
 <meta property="og:description" content="提炼YOLO-v2，参考https://zhuanlan.zhihu.com/p/25167153">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-21T13:20:39.885Z">
+<meta property="og:updated_time" content="2019-09-23T01:39:12.920Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="YOLO-v2">
 <meta name="twitter:description" content="提炼YOLO-v2，参考https://zhuanlan.zhihu.com/p/25167153">
@@ -95,15 +95,15 @@
 <h2 id="更好"><a href="#更好" class="headerlink" title="更好"></a>更好</h2><ol>
 <li>YOLO相对于两阶段定位错误较多，召回率较低</li>
 <li>BN一定程度上替换了其他的正则化方法（去掉了dropout），并且提高了收敛速度 ↑2%mAP</li>
-<li>针对448<em>448分辨率的图片进行分类，之前是对224</em>224分类，对448<em>448检测，网络需要适应分辨率的切换；改为448</em>448分类后，↑4%mAP</li>
+<li>针对448*448分辨率的图片进行分类，之前是对224*224分类，对448*448检测，网络需要适应分辨率的切换；改为448*448分类后，↑4%mAP</li>
 <li>Anchor box：对feature map上每个点的维度为（C+5）*B。相对于YOLO，将类别预测放到了每个Anchor box中；这个方法微弱减小了mAP但大幅度提高了召回率</li>
 <li>对GT boxes进行聚类得到Anchor box（prior），距离的度量指标为1-IoU，如果使用四个参数的欧几里得距离，那么大的box的误差会大于小的box的误差，与我们的目标（更大的IoU）不相符；而且关于bounding box位置参数，预测目标是Anchor box与GT的差距【本质上是通过增加Anchor box先验降低神经网络学习难度】；↑5%mAP</li>
-<li>不同细粒度特征融合，为了得到不同resolution的feature map，从而使得提取的特征更加完善，YOLO v2将前一个输出为26<em>26的layer作为passthrough layer，然后在具体实现时将它切成多个13</em>13的feature maps，这样再与之前的13*13的输出堆叠成多个feature maps一起进行预测。这样可以获得大约1%的提升。</li>
+<li>不同细粒度特征融合，为了得到不同resolution的feature map，从而使得提取的特征更加完善，YOLO v2将前一个输出为26*26的layer作为passthrough layer，然后在具体实现时将它切成多个13*13的feature maps，这样再与之前的13*13的输出堆叠成多个feature maps一起进行预测。这样可以获得大约1%的提升。</li>
 <li>多尺度训练，因为降采样比例为32，所以输入的图片大小为32的倍数，每10个Epoch随机选一个尺度</li>
 </ol>
 <h2 id="更快"><a href="#更快" class="headerlink" title="更快"></a>更快</h2><p>本文利用BN与1*1 conv提出了一个新的网络Darknet用来提取特征，计算量比GoogLenet更小，分类准确度比VGG-16更高</p>
-<h3 id="分类任务的训练："><a href="#分类任务的训练：" class="headerlink" title="分类任务的训练："></a>分类任务的训练：</h3><p>LR=0.1–&gt;0.001(epoch&gt;10)，weight decay=0.0005，momentum = 0.9；随机裁剪旋转，色调，饱和度和曝光调整；input size 224<em>224–&gt;448</em>448</p>
-<h3 id="检测人物的训练："><a href="#检测人物的训练：" class="headerlink" title="检测人物的训练："></a>检测人物的训练：</h3><p>修改分类网络结构以适应检测任务，保留相同的部分，在不同的Epoch采用不同的学习率</p>
+<h3 id="分类任务的训练："><a href="#分类任务的训练：" class="headerlink" title="分类任务的训练："></a>分类任务的训练：</h3><p>LR=0.1–&gt;0.001(epoch&gt;10)，weight decay=0.0005，momentum = 0.9；随机裁剪旋转，色调，饱和度和曝光调整；input size 224*224–&gt;448*448</p>
+<h3 id="检测任务的训练："><a href="#检测任务的训练：" class="headerlink" title="检测任务的训练："></a>检测任务的训练：</h3><p>修改分类网络结构以适应检测任务，保留相同的部分，在不同的Epoch采用不同的学习率</p>
 <h2 id="更强"><a href="#更强" class="headerlink" title="更强"></a>更强</h2><ul>
 <li>能预测9000类物体，将WordNet转化为WordTree（以添加最少边的原则选择路径），将类别标签设为WordTree所有节点的（条件）概率，如果物体是某个大类下的子类，那么大类和子类节点的标签均为1。</li>
 <li>测试时确定目标类别的方法：由根节点开始根据最大条件概率选择子类，等路径上节点的概率乘积小于某阈值或者到达叶节点时停止。</li>
@@ -122,9 +122,9 @@
 <nav id="article-nav">
   
   
-    <a href="/2019/09/21/YOLO/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2019/09/21/SSD/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">YOLO</div>
+      <div class="article-nav-title">SSD</div>
     </a>
   
 </nav>
@@ -165,6 +165,10 @@
           </li>
         
           <li>
+            <a href="/2019/09/21/SSD/">SSD</a>
+          </li>
+        
+          <li>
             <a href="/2019/09/21/YOLO/">YOLO</a>
           </li>
         
@@ -174,10 +178,6 @@
         
           <li>
             <a href="/2019/09/21/fast-RCNN/">Fast RCNN</a>
-          </li>
-        
-          <li>
-            <a href="/2019/09/21/SPPNet/">SPPNet</a>
           </li>
         
       </ul>
