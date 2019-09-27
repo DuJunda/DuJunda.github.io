@@ -5,20 +5,22 @@
   
 
   
-  <title>YOLO | 杜俊达</title>
+  <title>FPN | 杜俊达</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="提炼YOLO">
+  <meta name="description" content="提炼FPN">
 <meta name="keywords" content="杜俊达,计算机科学与技术,哈尔滨工业大学,计算机视觉">
 <meta property="og:type" content="article">
-<meta property="og:title" content="YOLO">
-<meta property="og:url" content="http://yoursite.com/2019/09/21/YOLO/index.html">
+<meta property="og:title" content="FPN">
+<meta property="og:url" content="http://yoursite.com/2019/09/27/FPN/index.html">
 <meta property="og:site_name" content="杜俊达">
-<meta property="og:description" content="提炼YOLO">
+<meta property="og:description" content="提炼FPN">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-21T13:17:13.860Z">
+<meta property="og:image" content="https://dujunda.github.io/files/images/FPN.png">
+<meta property="og:updated_time" content="2019-09-27T02:18:47.870Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="YOLO">
-<meta name="twitter:description" content="提炼YOLO">
+<meta name="twitter:title" content="FPN">
+<meta name="twitter:description" content="提炼FPN">
+<meta name="twitter:image" content="https://dujunda.github.io/files/images/FPN.png">
   
   
     <link rel="icon" href="/favicon.png">
@@ -67,10 +69,10 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-YOLO" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-FPN" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2019/09/21/YOLO/" class="article-date">
-  <time datetime="2019-09-21T13:08:22.000Z" itemprop="datePublished">2019-09-21</time>
+    <a href="/2019/09/27/FPN/" class="article-date">
+  <time datetime="2019-09-27T02:17:38.000Z" itemprop="datePublished">2019-09-27</time>
 </a>
     
   </div>
@@ -81,7 +83,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      YOLO
+      FPN
     </h1>
   
 
@@ -89,28 +91,19 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>提炼<a href="https://arxiv.org/abs/1506.02640" target="_blank" rel="noopener">YOLO</a></p>
+        <p>提炼<a href="https://arxiv.org/abs/1612.03144" target="_blank" rel="noopener">FPN</a></p>
 <a id="more"></a>
-<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>把目标检测问题定为 一个对空间分离的bounding box的回归问题<br>【本质上是将图像的方格根据相对空间位置映射到Feature Map上，类似于RCNN将候选框映射到Feature Map上，YOLO的映射关系更优，因为它进行了反向传播】</p>
-<h2 id="导言"><a href="#导言" class="headerlink" title="导言"></a>导言</h2><p>YOLO在目标检测时向整张图片溯源，因为每一个格子的感受野为整张图片，（？）有着更低的背景错分率，具有较高的泛化性</p>
-<h2 id="统一的检测"><a href="#统一的检测" class="headerlink" title="统一的检测"></a>统一的检测</h2><ul>
-<li>每个格子的目标向量维度为C+B*(4+1)，C为数据集类别个数，B为Anchor box种类，4代表bounding box的参数，1代表这个anchor box 是否有物体</li>
-<li>首先格子里出现物体才会处罚类别的loss</li>
-<li>然后不仅出现而且bounding box对物体负责【有最高的IoU】才会处罚box参数与是否有物体的loss<br>对于不出现物体的格子会处罚是否有物体的loss，而且权重比较小</li>
-</ul>
-<h2 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h2><ol>
-<li>首先在ImageNet上预训练【需要一点修改，等结束之后再换回来，保留相同的部分】，</li>
-<li>在预训练时采用224*224的分辨率输入，在检测时采用448*448的分辨率的输入</li>
-<li>对平移相关的两个参数采用他们的平方差，对放缩相关的两个参数采用他们根号的平方差，</li>
-<li>由于背景格子过多，所以对背景格子的处罚是否有物体的loss加上权重，否则将倾向于预测所有格子不含物体</li>
-<li>每个格子有很多anchor box，我们只处罚对物体负责的anchor box，负责的标准是预测结果/√anchor box？与GT有最高的IoU【anchor box相当于是先验，思路是利用anchor box降低神经网络学习的难度】<br>学习率不断变化，第一个epoch由低到高，后面几十个epoch由高到低，后面几十个更低</li>
+<h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><p>在SSD中虽然使用了多尺度，但是在尺度较高的特征图上，其深度较低，无法很好地提取图片特征，因此FPN为了解决大尺度特征图深度较低的问题，提出了类似于U-Net的残差网络，这样大尺度特征图不仅深度就提上去了，也就是文中提到的高语义层次【网络深度的作用】，而且也没有丢失信息【残差的作用】</p>
+<h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><p><img src="https://dujunda.github.io/files/images/FPN.png" alt="FPN"><br>类似于U-Net，在实现残差时(也就是同级特征图融合时)需要注意如何将同级的feature map连在一起，其方式是</p>
+<ol>
+<li>将特征图P2做上采样【最近邻方式】，然后再使用3*3卷积得到P1。<a href="https://mp.weixin.qq.com/s?__biz=MzI0NDUwNzYzMg==&mid=2247485405&idx=1&sn=61077d5709b0361f57bd86e3eb2ba580&chksm=e95df142de2a78548aa27a082bd511b54bfb9f76f9f430f17079c184f37006c111917874afe2&mpshare=1&scene=24&srcid=&sharer_sharetime=1569413258977&sharer_shareid=27ce48132739be35c28fd5d5fa612d8e&key=9beff2f0a702e1d59c44b87aea5db2ef6dd8f756a5c698c3bb116e40fbe42de4c515cdca49dee6bc9e7f796ac3355375c6bf1ed28f1d2d5c5d3a738efe7a7f6aab161a298924fa24d8ecda465188277d&ascene=14&uin=MzIyMzc3NA%3D%3D&devicetype=Windows+10&version=62060841&lang=zh_CN&pass_ticket=zWY3LN7gU9TkqhP2zc%2FLNzHs0IZ9UBKIuiG272%2FPigE%3D" target="_blank" rel="noopener">转置卷积</a>可以将特征图变大，而且还有参数，(为什么不使用呢)[ <a href="https://www.cnblogs.com/hellcat/p/9707204.html#_label2_1]？" target="_blank" rel="noopener">https://www.cnblogs.com/hellcat/p/9707204.html#_label2_1]？</a></li>
+<li>将P3同级的特征图进行1*1卷积融合不同通道的信息并适配P3通道个数，再与P3相加</li>
 </ol>
-<p><strong>测试时使用了极大值抑制</strong></p>
-<h2 id="局限性"><a href="#局限性" class="headerlink" title="局限性"></a>局限性</h2><ul>
-<li>小物体很难检测</li>
-<li>无法泛化到新的类别检测和新的box</li>
-<li>对于大的box和小的box误差影响不同，对于小的box误差影响大</li>
-</ul>
+<h2 id="适配到Faster-R-CNN中去"><a href="#适配到Faster-R-CNN中去" class="headerlink" title="适配到Faster R-CNN中去"></a>适配到Faster R-CNN中去</h2><p>将Faster R-CNN中的RPN子网络中的3*3卷积换成FPN网络，这样就可以拿不同尺度的特征图来做预测了，除次之外还需要做以下定义</p>
+<ol>
+<li>每一个特征图对应多个的Anchor box只有纵横比不同，大小是固定的。越大的特征图对应的Anchor box大小越小</li>
+<li>当知道了图片的RoI时，选取哪个尺度的特征图做预测呢？显然RoI越大，选取的特征图尺度应该越小，也就是对应的金字塔层级越高。量化公式如下<br>\(k=\left\lfloor k_{0}+\log <em>{2}(\sqrt{w h} / 224)\right\rfloor\)<br>其中k为金字塔层级，\( k</em>{0}\)为输入图片大小也就是224*224对应的金字塔层级。【这样就完成了小目标使用大尺度特征图预测，本质上是不同尺度的特征图各司其职，尺度越大越适合检测小物体】</li>
+</ol>
 
       
     </div>
@@ -124,19 +117,10 @@
     
 <nav id="article-nav">
   
-    <a href="/2019/09/21/SSD/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          SSD
-        
-      </div>
-    </a>
   
-  
-    <a href="/2019/09/21/Faster-RCNN/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2019/09/21/YOLO-v2/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Faster RCNN</div>
+      <div class="article-nav-title">YOLO-v2</div>
     </a>
   
 </nav>
