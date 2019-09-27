@@ -16,7 +16,7 @@
 <meta property="og:description" content="提炼FPN">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://dujunda.github.io/files/images/FPN.png">
-<meta property="og:updated_time" content="2019-09-27T02:18:47.870Z">
+<meta property="og:updated_time" content="2019-09-27T02:21:28.515Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="FPN">
 <meta name="twitter:description" content="提炼FPN">
@@ -91,12 +91,13 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>提炼<a href="https://arxiv.org/abs/1612.03144" target="_blank" rel="noopener">FPN</a></p>
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+<p>提炼<a href="https://arxiv.org/abs/1612.03144" target="_blank" rel="noopener">FPN</a></p>
 <a id="more"></a>
 <h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><p>在SSD中虽然使用了多尺度，但是在尺度较高的特征图上，其深度较低，无法很好地提取图片特征，因此FPN为了解决大尺度特征图深度较低的问题，提出了类似于U-Net的残差网络，这样大尺度特征图不仅深度就提上去了，也就是文中提到的高语义层次【网络深度的作用】，而且也没有丢失信息【残差的作用】</p>
 <h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><p><img src="https://dujunda.github.io/files/images/FPN.png" alt="FPN"><br>类似于U-Net，在实现残差时(也就是同级特征图融合时)需要注意如何将同级的feature map连在一起，其方式是</p>
 <ol>
-<li>将特征图P2做上采样【最近邻方式】，然后再使用3*3卷积得到P1。<a href="https://mp.weixin.qq.com/s?__biz=MzI0NDUwNzYzMg==&mid=2247485405&idx=1&sn=61077d5709b0361f57bd86e3eb2ba580&chksm=e95df142de2a78548aa27a082bd511b54bfb9f76f9f430f17079c184f37006c111917874afe2&mpshare=1&scene=24&srcid=&sharer_sharetime=1569413258977&sharer_shareid=27ce48132739be35c28fd5d5fa612d8e&key=9beff2f0a702e1d59c44b87aea5db2ef6dd8f756a5c698c3bb116e40fbe42de4c515cdca49dee6bc9e7f796ac3355375c6bf1ed28f1d2d5c5d3a738efe7a7f6aab161a298924fa24d8ecda465188277d&ascene=14&uin=MzIyMzc3NA%3D%3D&devicetype=Windows+10&version=62060841&lang=zh_CN&pass_ticket=zWY3LN7gU9TkqhP2zc%2FLNzHs0IZ9UBKIuiG272%2FPigE%3D" target="_blank" rel="noopener">转置卷积</a>可以将特征图变大，而且还有参数，(为什么不使用呢)[ <a href="https://www.cnblogs.com/hellcat/p/9707204.html#_label2_1]？" target="_blank" rel="noopener">https://www.cnblogs.com/hellcat/p/9707204.html#_label2_1]？</a></li>
+<li>将特征图P2做上采样【最近邻方式】，然后再使用3*3卷积得到P1。<a href="https://mp.weixin.qq.com/s?__biz=MzI0NDUwNzYzMg==&mid=2247485405&idx=1&sn=61077d5709b0361f57bd86e3eb2ba580&chksm=e95df142de2a78548aa27a082bd511b54bfb9f76f9f430f17079c184f37006c111917874afe2&mpshare=1&scene=24&srcid=&sharer_sharetime=1569413258977&sharer_shareid=27ce48132739be35c28fd5d5fa612d8e&key=9beff2f0a702e1d59c44b87aea5db2ef6dd8f756a5c698c3bb116e40fbe42de4c515cdca49dee6bc9e7f796ac3355375c6bf1ed28f1d2d5c5d3a738efe7a7f6aab161a298924fa24d8ecda465188277d&ascene=14&uin=MzIyMzc3NA%3D%3D&devicetype=Windows+10&version=62060841&lang=zh_CN&pass_ticket=zWY3LN7gU9TkqhP2zc%2FLNzHs0IZ9UBKIuiG272%2FPigE%3D" target="_blank" rel="noopener">转置卷积</a>可以将特征图变大，而且还有参数，<a href="https://www.cnblogs.com/hellcat/p/9707204.html#_label2_1" target="_blank" rel="noopener">为什么不使用呢</a>?</li>
 <li>将P3同级的特征图进行1*1卷积融合不同通道的信息并适配P3通道个数，再与P3相加</li>
 </ol>
 <h2 id="适配到Faster-R-CNN中去"><a href="#适配到Faster-R-CNN中去" class="headerlink" title="适配到Faster R-CNN中去"></a>适配到Faster R-CNN中去</h2><p>将Faster R-CNN中的RPN子网络中的3*3卷积换成FPN网络，这样就可以拿不同尺度的特征图来做预测了，除次之外还需要做以下定义</p>
