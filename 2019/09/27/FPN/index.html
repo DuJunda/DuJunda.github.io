@@ -16,7 +16,7 @@
 <meta property="og:description" content="提炼FPN">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://dujunda.github.io/files/images/FPN.png">
-<meta property="og:updated_time" content="2019-09-27T02:34:10.409Z">
+<meta property="og:updated_time" content="2019-09-27T02:36:28.944Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="FPN">
 <meta name="twitter:description" content="提炼FPN">
@@ -104,7 +104,7 @@
 <h2 id="适配到Faster-R-CNN中去"><a href="#适配到Faster-R-CNN中去" class="headerlink" title="适配到Faster R-CNN中去"></a>适配到Faster R-CNN中去</h2><p>将Faster R-CNN中的RPN子网络中的3*3卷积换成FPN网络，这样就可以拿不同尺度的特征图来做预测了，除次之外还需要做以下定义</p>
 <ol>
 <li>每一个特征图对应多个的Anchor box只有纵横比不同，大小是固定的。越大的特征图对应的Anchor box大小越小</li>
-<li>当知道了图片的RoI时，选取哪个尺度的特征图做预测呢？显然RoI越大，选取的特征图尺度应该越小，也就是对应的金字塔层级越高。量化公式如下<br>$$k=\left\lfloor k_{0}+\log <em>{2}(\sqrt{w h} / 224)\right\rfloor$$其中k为金字塔层级，\(k</em>{0}\)为输入图片大小也就是224*224对应的金字塔层级。【这样就完成了小目标使用大尺度特征图预测，本质上是不同尺度的特征图各司其职，尺度越大越适合检测小物体】</li>
+<li>当知道了图片的RoI时，选取哪个尺度的特征图做预测呢？显然RoI越大，选取的特征图尺度应该越小，也就是对应的金字塔层级越高。量化公式如下<br>$$k=\left\lfloor k_{0}+\log_{2}(\sqrt{w h} / 224)\right\rfloor$$其中k为金字塔层级，\(k_{0}\)为输入图片大小也就是224*224对应的金字塔层级。【这样就完成了小目标使用大尺度特征图预测，本质上是不同尺度的特征图各司其职，尺度越大越适合检测小物体】</li>
 </ol>
 
       
