@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>FocalLoss | 杜俊达</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="提炼FocalLoss">
+<meta name="keywords" content="杜俊达,计算机科学与技术,哈尔滨工业大学,计算机视觉">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FocalLoss">
+<meta property="og:url" content="http://yoursite.com/2019/09/29/FocalLoss/index.html">
+<meta property="og:site_name" content="杜俊达">
+<meta property="og:description" content="提炼FocalLoss">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://dujunda.github.io/files/images/RetinaNet.png">
+<meta property="og:updated_time" content="2019-09-29T02:43:44.715Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="FocalLoss">
+<meta name="twitter:description" content="提炼FocalLoss">
+<meta name="twitter:image" content="https://dujunda.github.io/files/images/RetinaNet.png">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">杜俊达</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">个人网站</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/aboutme">About Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-FocalLoss" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/09/29/FocalLoss/" class="article-date">
+  <time datetime="2019-09-29T02:24:18.000Z" itemprop="datePublished">2019-09-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      FocalLoss
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+<p>提炼<a href="https://arxiv.org/abs/1708.02002" target="_blank" rel="noopener">FocalLoss</a></p>
+<a id="more"></a>
+<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>一阶段比两阶段精度低的原因是前景背景的极度不平衡，通过降低 Entropy Loss 中较好分类的损失，可以替代 Hard negative mining.<br>RetinaNet 是一个简单是密集采样的检测器，是一阶段的，并采用了 FocalLoss，精度超过了当时的两阶段方法，速度能跟上一阶段的方法</p>
+<h2 id="导言"><a href="#导言" class="headerlink" title="导言"></a>导言</h2><p>再训练阶段发现了类的不平衡导致了一阶段检测器的准确度不够，利用损失函数可以解决这个问题，<br>两阶段检测器避免的原因：提取候选框的阶段将候选框的数目大大降低，而且过滤掉了大部分背景样本。</p>
+<h2 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h2><ol>
+<li>Class Imbalance 带来了两个问题：</li>
+</ol>
+<ul>
+<li>训练效率低，因为有大量的容易的样本，学习他们带来的价值很小</li>
+<li>大量的容易的样本使得结果一边倒，使得模型退化<br>在两阶段检测器中，两阶段级联和 Hard examples mining 可以解决这个问题；而针对一阶段检测器中的这个问题，我们提出了 FocalLoss 使得训练高效且防止了一边倒</li>
+</ul>
+<ol start="2">
+<li>Robust Estimation：<br>关于离群点的损失处理，Huber loss 降低了其权重以提高鲁棒性<br>而 FocalLoss 则相反，其关注于训练那些难样本（“离群点”）<br>【我认为难样本和离群点的共同点是loss大，不同点是难样本更像是 SVM 中的支持向量，而离群点更像是脏数据。也许有办法区分离群点和难样本，然后采用不同的loss？既提高鲁棒性又提高网络能力】</li>
+</ol>
+<h2 id="Focal-Loss"><a href="#Focal-Loss" class="headerlink" title="Focal Loss"></a>Focal Loss</h2><ol>
+<li>首先定义交叉熵<br>$$CE(p,y) = CE(p_t) = -log(p_t),<!--[CDATA[
+p_{\mathrm{t}}=\left\{\begin{aligned}
+& p  &if \  y=1\\
+& 1-p  &otherwise
+\end{aligned}
+\right. %]]-->.$$<br>当我们画出他的函数图像时，发现在\(p_t\)大于0.5时，仍然有很大的斜率，这意味着即便是预测的比较好的样本对反向传递的也有较大的影响，这会使得很多容易学的负样本压倒训练过程</li>
+<li>定义Focal Loss<br>$$\mathrm{FL}\left(p_{\mathrm{t}}\right)=-\left(1-p_{\mathrm{t}}\right)^{\gamma} \log \left(p_{\mathrm{t}}\right)$$<br>其中\(\gamma \)为超参数。这使得在在\(p_t\)大于0.5时，该函数比交叉熵对应的斜率要小很多。</li>
+<li>利用先验进行模型有偏初始化<br>二分类模型默认两类概率相等【对应网络最后一层的bias等于0】，如果我们据此进行模型初始化，由于类的不均衡而且在初期 focal loss 不会起作用【输出的p均在0.5左右】，会出现一边倒与不稳定的情况。<br>于是<strong>利用类的先验概率</strong>来对网络的最后一层进行初始化，令其偏置 \(b = -log((1-\pi)/\pi), \pi\)为正样本的先验概率取0.01，对于其他的新增的层令偏置为0，对所有新增的层的权重采用\(N(0,0.01^2)\)进行初始化。</li>
+</ol>
+<h2 id="RetinaNet"><a href="#RetinaNet" class="headerlink" title="RetinaNet"></a>RetinaNet</h2><ol>
+<li>Anchor box的分配：针对feature map上每个点，有3种纵横比与3种相对大小的组合，一共有9种；分配时，对于与某GT的IoU在0.5及以上的Anchor box被分配为前景，对于与所有GT的IoU小于0.4的被分配为背景，在\([0.4,0.5)\)区间内的被忽略也就是不分配【因为这是歧义区，如果参与训练容易成为FocalLoss针对的对象，而我们并不想网络“钻牛角尖”，我们想让网络针对那些无歧义的而且难学的样本】</li>
+<li>预测位置与预测类别被分为两个子网，而不是像YOLO，SSD那样结合在一起</li>
+<li>整体网络结构<br><img src="https://dujunda.github.io/files/images/RetinaNet.png" alt="RetinaNet"></li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/09/27/FPN/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">FPN</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/09/29/FocalLoss/">FocalLoss</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/27/FPN/">FPN</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/21/YOLO-v2/">YOLO-v2</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/21/SSD/">SSD</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/21/YOLO/">YOLO</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 杜俊达<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/aboutme" class="mobile-nav-link">About Me</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
