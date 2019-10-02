@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Pytorch中文文档理解 | 杜俊达</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="理解Pytorch中文文档要点。">
+<meta name="keywords" content="杜俊达,计算机科学与技术,哈尔滨工业大学,计算机视觉">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pytorch中文文档理解">
+<meta property="og:url" content="http://yoursite.com/2019/10/01/Pytorch中文文档理解/index.html">
+<meta property="og:site_name" content="杜俊达">
+<meta property="og:description" content="理解Pytorch中文文档要点。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-10-02T08:04:36.369Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Pytorch中文文档理解">
+<meta name="twitter:description" content="理解Pytorch中文文档要点。">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">杜俊达</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">个人网站</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/aboutme">About Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Pytorch中文文档理解" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/10/01/Pytorch中文文档理解/" class="article-date">
+  <time datetime="2019-10-01T04:26:15.000Z" itemprop="datePublished">2019-10-01</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Pytorch中文文档理解
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+<p>理解<a href="https://pytorch-cn.readthedocs.io/zh/latest/" target="_blank" rel="noopener">Pytorch中文文档</a>要点。</p>
+<a id="more"></a>
+<h2 id="自动求导机制"><a href="#自动求导机制" class="headerlink" title="自动求导机制"></a>自动求导机制</h2><ul>
+<li>前向：带有一定属性的 Variable 通过 Function 得到输出的 Variable，该输出具有.creator 属性，指向 Function，这就是形成 DAG 计算图的原理</li>
+<li>反向：对于需要反向传播的计算，利用缓存的输入的 Variable 以后面网络传回来的梯度【目标对输出的 Variable 的梯度】，利用链式法则将输出对输入的梯度与目标对输出的梯度相乘得到目标对输入的梯度，然后依次后传。</li>
+<li>是否进行反向传播取决于输入 Variable 的 requires_grad 或 volatile 是否被赋为 True<br>· 输入的 Variable 只要有一个 <code>requires_grad=True</code>，那么输出的 Variable 对应的 requires_grad=True，也就是需要反向传播。因此当我们使用<strong>预训练模型</strong>时，需要将预训练模型的所有参数的 require_grad 设为False，也就是 for param in model.parameters():param.requires_grad = False，因为默认是 requires_grad=True<br>· 输入的 Variable 只要有一个 <code>volatile=True</code>，那么输出的 Variable 对应的 volatile=True【volatile=True–&gt;require_grad = False】，也就是不需要反向传播。因此当我们<strong>只进行 Inference</strong>【test】 时，可以将输入 Variable 的 volatile 设为True。这样可以<strong>减少缓存输入</strong>的操作。</li>
+<li>In-place操作不推荐使用，它在极少数情况下会降低内存的使用。该操作是在输入 Variable 的位置保存输出，也就是得先把输入摧毁，当需要反向时再重建。<em>当该输入有多个 Function 得到不同输出时，会出错，因为为了储存一个输出而摧毁了输入，那其他输出就没办法计算了</em> </li>
+</ul>
+<h2 id="CUDA语义【一个或多个GPU的使用及并行原理】"><a href="#CUDA语义【一个或多个GPU的使用及并行原理】" class="headerlink" title="CUDA语义【一个或多个GPU的使用及并行原理】"></a>CUDA语义【一个或多个GPU的使用及并行原理】</h2><p><code>torch.cuda</code>会记录当前选择的GPU，并且分配的所有CUDA张量将在上面创建。可以使用<code>torch.cuda.device</code>上下文管理器更改所选设备。</p>
+<ul>
+<li>使用单GPU的方法<br>· <code>torch.FloatTensor(1).cuda()</code>，默认为0号device，如需指定n号则写为.cudn(n)<br>· <code>with torch.cuda.device(1)</code>:在下面默认使用1号device</li>
+<li>使用多GPU并行计算<br>语法：<code>model=nn.DataParallel(model,device_ids=[0,1,2]) # multi-GPU</code><br>原理：将该模型分配到多个GPU中，计算时将一个 batch 分为多个小的 batch 分配到不同的GPU进行计算<br>问题：<br>· 多个GPU计算时不共享信息，所以 BatchNorm 类似的层会和使用单GPU不同<br>解决方案：将 batch_size 扩大n倍【推荐】，或者使用 Sync BatchNorm，参考<a href="https://zhuanlan.zhihu.com/p/69940683" target="_blank" rel="noopener">Pytorch多GPU的计算和Sync BatchNorm</a><br>· 多GPU训练的模型读取，<a href="https://www.zhihu.com/question/67726969/answer/389980788" target="_blank" rel="noopener">参考</a><pre><code>#-----多GPU训练的模型读取的代码，multi-gpu training---------
+def load_network(network):
+    save_path = os.path.join(&apos;./model&apos;,name,&apos;net_%s.pth&apos;%opt.which_epoch)
+    state_dict = torch.load(save_path)
+    #create new OrderedDict that does not contain module.
+    from collections import OrderedDict
+    new_state_dict = OrderedDict()
+    for k, v in state_dict.items():
+        namekey = k[7:] # remove module.
+        new_state_dict[namekey] = v
+    #load params
+    network.load_state_dict(new_state_dict)
+    return network
+#----------单GPU训练读取模型的代码，single gpu training-----------------
+def load_network(network):
+    save_path = os.path.join(&apos;./model&apos;,name,&apos;net_%s.pth&apos;%opt.which_epoch)
+    network.load_state_dict(torch.load(save_path))
+    return network</code></pre></li>
+<li>将数据固定到内存【防止换出】<br>当计算机内存资源丰富时，将 <code>pin_memory=True</code> 传给 DataLoader 函数可将 batch 固定到内存中，可以消除数据载入内存的时间。<br>另外，一旦固定了张量或存储，就可以使用异步的GPU副本。只需传递一个额外的<code>async=True</code>参数到cuda()的调用。这可以用于将数据传输与计算重叠。</li>
+</ul>
+<h2 id="拓展Pytorch【自定义Function或Module并支持autograd】"><a href="#拓展Pytorch【自定义Function或Module并支持autograd】" class="headerlink" title="拓展Pytorch【自定义Function或Module并支持autograd】"></a>拓展Pytorch【自定义Function或Module并支持autograd】</h2><ul>
+<li>对于无参数的自定义【比如Relu】，继承 Function，实现 forward() 与 backward()，其中 forward 要先缓存输入【如果需要反向的话】，backward 的参数是目标对输出的梯度，要返回目标对输入的梯度。</li>
+<li>对于有参数的定义【比如layer】，继承Module，在__init__中初始化参数，在实现forward需要调用 Function</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/09/29/YOLO-v3/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">YOLO-v3</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/10/01/Pytorch中文文档理解/">Pytorch中文文档理解</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/29/YOLO-v3/">YOLO-v3</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/29/FocalLoss/">FocalLoss</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/27/FPN/">FPN</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/21/YOLO-v2/">YOLO-v2</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 杜俊达<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/aboutme" class="mobile-nav-link">About Me</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

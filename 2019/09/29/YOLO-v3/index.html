@@ -7,19 +7,19 @@
   
   <title>YOLO-v3 | 杜俊达</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="提炼YOLO-v3，参考https://blog.csdn.net/leviopku/article/details/82660381与 https://zhuanlan.zhihu.com/p/37201615，实现参考https://www.jiqizhixin.com/articles/2018-04-23-3">
+  <meta name="description" content="提炼YOLO-v3，参考解读与 翻译，从配置文件实现YOLO">
 <meta name="keywords" content="杜俊达,计算机科学与技术,哈尔滨工业大学,计算机视觉">
 <meta property="og:type" content="article">
 <meta property="og:title" content="YOLO-v3">
 <meta property="og:url" content="http://yoursite.com/2019/09/29/YOLO-v3/index.html">
 <meta property="og:site_name" content="杜俊达">
-<meta property="og:description" content="提炼YOLO-v3，参考https://blog.csdn.net/leviopku/article/details/82660381与 https://zhuanlan.zhihu.com/p/37201615，实现参考https://www.jiqizhixin.com/articles/2018-04-23-3">
+<meta property="og:description" content="提炼YOLO-v3，参考解读与 翻译，从配置文件实现YOLO">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://dujunda.github.io/files/images/YOLOv3.jpg">
-<meta property="og:updated_time" content="2019-09-29T15:28:48.467Z">
+<meta property="og:updated_time" content="2019-10-02T03:49:51.749Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="YOLO-v3">
-<meta name="twitter:description" content="提炼YOLO-v3，参考https://blog.csdn.net/leviopku/article/details/82660381与 https://zhuanlan.zhihu.com/p/37201615，实现参考https://www.jiqizhixin.com/articles/2018-04-23-3">
+<meta name="twitter:description" content="提炼YOLO-v3，参考解读与 翻译，从配置文件实现YOLO">
 <meta name="twitter:image" content="https://dujunda.github.io/files/images/YOLOv3.jpg">
   
   
@@ -92,11 +92,11 @@
     <div class="article-entry" itemprop="articleBody">
       
         <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
-<p>提炼<a href="https://arxiv.org/abs/1804.02767" target="_blank" rel="noopener">YOLO-v3</a>，参考<a href="https://blog.csdn.net/leviopku/article/details/82660381" target="_blank" rel="noopener">https://blog.csdn.net/leviopku/article/details/82660381</a>与<a href="https://zhuanlan.zhihu.com/p/37201615" target="_blank" rel="noopener"> https://zhuanlan.zhihu.com/p/37201615</a>，实现参考<a href="https://www.jiqizhixin.com/articles/2018-04-23-3" target="_blank" rel="noopener">https://www.jiqizhixin.com/articles/2018-04-23-3</a></p>
+<p>提炼<a href="https://arxiv.org/abs/1804.02767" target="_blank" rel="noopener">YOLO-v3</a>，参考<a href="https://blog.csdn.net/leviopku/article/details/82660381" target="_blank" rel="noopener">解读</a>与<a href="https://zhuanlan.zhihu.com/p/37201615" target="_blank" rel="noopener"> 翻译</a>，<a href="https://www.jiqizhixin.com/articles/2018-04-23-3" target="_blank" rel="noopener">从配置文件实现YOLO</a></p>
 <a id="more"></a>
 <h2 id="关键点"><a href="#关键点" class="headerlink" title="关键点"></a>关键点</h2><ol>
 <li>Anchor box的分配：每个GT只分配给与其IoU最大的Anchor box；对于每个尺度的feature map，其中每个特征点对应三个纵横比的Anchor box，且不同尺度的feature map对应的大小不同</li>
-<li>分类损失的选择：不使用Softmax，因为Softmax目标只有一个类别，如果有重叠标签则不适用【原因是取指数加大了类别概率的差距】；它被被独立的多个logistic分类器替代，且准确率不会下降，分类损失采用binary cross-entropy loss【？等我看见具体实现再说明白些】</li>
+<li>分类损失的选择：不使用Softmax，因为Softmax目标只有一个类别，如果有重叠标签则不适用【原因是取指数加大了类别概率的差距】；它被Sigmoid激活函数代替，准确率不会下降，分类损失采用binary cross-entropy loss</li>
 <li><a href="https://www.zhihu.com/question/293369755" target="_blank" rel="noopener">为什么Focal Ioss无效</a></li>
 </ol>
 <h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><p>采用新的网络结构Darknet-53作为主干网络，并使用了FPN的思想，其具体解释见<a href="https://blog.csdn.net/leviopku/article/details/82660381" target="_blank" rel="noopener">https://blog.csdn.net/leviopku/article/details/82660381</a><br><img src="https://dujunda.github.io/files/images/YOLOv3.jpg" alt="YOLO-v3"></p>
@@ -112,6 +112,15 @@
   
     
 <nav id="article-nav">
+  
+    <a href="/2019/10/01/Pytorch中文文档理解/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Pytorch中文文档理解
+        
+      </div>
+    </a>
   
   
     <a href="/2019/09/29/FocalLoss/" id="article-nav-older" class="article-nav-link-wrap">
@@ -140,7 +149,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li></ul>
     </div>
   </div>
 
@@ -151,6 +160,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2019/10/01/Pytorch中文文档理解/">Pytorch中文文档理解</a>
+          </li>
         
           <li>
             <a href="/2019/09/29/YOLO-v3/">YOLO-v3</a>
@@ -166,10 +179,6 @@
         
           <li>
             <a href="/2019/09/21/YOLO-v2/">YOLO-v2</a>
-          </li>
-        
-          <li>
-            <a href="/2019/09/21/SSD/">SSD</a>
           </li>
         
       </ul>
