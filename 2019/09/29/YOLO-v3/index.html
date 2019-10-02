@@ -7,19 +7,19 @@
   
   <title>YOLO-v3 | 杜俊达</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="提炼YOLO-v3，参考解读与 翻译，从配置文件实现YOLO">
+  <meta name="description" content="提炼YOLO-v3，参考解读与翻译，从配置文件实现YOLO-v3，直接用pytorch实现-v3">
 <meta name="keywords" content="目标检测">
 <meta property="og:type" content="article">
 <meta property="og:title" content="YOLO-v3">
 <meta property="og:url" content="http://yoursite.com/2019/09/29/YOLO-v3/index.html">
 <meta property="og:site_name" content="杜俊达">
-<meta property="og:description" content="提炼YOLO-v3，参考解读与 翻译，从配置文件实现YOLO">
+<meta property="og:description" content="提炼YOLO-v3，参考解读与翻译，从配置文件实现YOLO-v3，直接用pytorch实现-v3">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://dujunda.github.io/files/images/YOLOv3.jpg">
-<meta property="og:updated_time" content="2019-10-02T08:09:51.558Z">
+<meta property="og:updated_time" content="2019-10-02T08:30:00.734Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="YOLO-v3">
-<meta name="twitter:description" content="提炼YOLO-v3，参考解读与 翻译，从配置文件实现YOLO">
+<meta name="twitter:description" content="提炼YOLO-v3，参考解读与翻译，从配置文件实现YOLO-v3，直接用pytorch实现-v3">
 <meta name="twitter:image" content="https://dujunda.github.io/files/images/YOLOv3.jpg">
   
   
@@ -92,7 +92,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
-<p>提炼<a href="https://arxiv.org/abs/1804.02767" target="_blank" rel="noopener">YOLO-v3</a>，参考<a href="https://blog.csdn.net/leviopku/article/details/82660381" target="_blank" rel="noopener">解读</a>与<a href="https://zhuanlan.zhihu.com/p/37201615" target="_blank" rel="noopener"> 翻译</a>，<a href="https://www.jiqizhixin.com/articles/2018-04-23-3" target="_blank" rel="noopener">从配置文件实现YOLO</a></p>
+<p>提炼<a href="https://arxiv.org/abs/1804.02767" target="_blank" rel="noopener">YOLO-v3</a>，参考<a href="https://blog.csdn.net/leviopku/article/details/82660381" target="_blank" rel="noopener">解读</a>与<a href="https://zhuanlan.zhihu.com/p/37201615" target="_blank" rel="noopener">翻译</a>，<a href="https://www.jiqizhixin.com/articles/2018-04-23-3" target="_blank" rel="noopener">从配置文件实现YOLO-v3</a>，<a href="https://github.com/ne7ermore/yolo-v3" target="_blank" rel="noopener">直接用pytorch实现-v3</a></p>
 <a id="more"></a>
 <h2 id="关键点"><a href="#关键点" class="headerlink" title="关键点"></a>关键点</h2><ol>
 <li>Anchor box的分配：每个GT只分配给与其IoU最大的Anchor box；对于每个尺度的feature map，其中每个特征点对应三个纵横比的Anchor box，且不同尺度的feature map对应的大小不同</li>
