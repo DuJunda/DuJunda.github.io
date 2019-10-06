@@ -5,20 +5,22 @@
   
 
   
-  <title>YOLO-v2 | 杜俊达</title>
+  <title>RefineDet | 杜俊达</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="提炼YOLO-v2，参考https://zhuanlan.zhihu.com/p/25167153">
+  <meta name="description" content="提炼RefineDet，参考https://zhuanlan.zhihu.com/p/50244029">
 <meta name="keywords" content="目标检测">
 <meta property="og:type" content="article">
-<meta property="og:title" content="YOLO-v2">
-<meta property="og:url" content="http://yoursite.com/2019/09/21/YOLO-v2/index.html">
+<meta property="og:title" content="RefineDet">
+<meta property="og:url" content="http://yoursite.com/2019/10/06/RefineDet/index.html">
 <meta property="og:site_name" content="杜俊达">
-<meta property="og:description" content="提炼YOLO-v2，参考https://zhuanlan.zhihu.com/p/25167153">
+<meta property="og:description" content="提炼RefineDet，参考https://zhuanlan.zhihu.com/p/50244029">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-10-06T02:23:49.523Z">
+<meta property="og:image" content="https://dujunda.github.io/files/images/RefineDet.png">
+<meta property="og:updated_time" content="2019-10-06T12:50:37.666Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="YOLO-v2">
-<meta name="twitter:description" content="提炼YOLO-v2，参考https://zhuanlan.zhihu.com/p/25167153">
+<meta name="twitter:title" content="RefineDet">
+<meta name="twitter:description" content="提炼RefineDet，参考https://zhuanlan.zhihu.com/p/50244029">
+<meta name="twitter:image" content="https://dujunda.github.io/files/images/RefineDet.png">
   
   
     <link rel="icon" href="/favicon.png">
@@ -67,10 +69,10 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-YOLO-v2" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-RefineDet" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2019/09/21/YOLO-v2/" class="article-date">
-  <time datetime="2019-09-21T13:08:42.000Z" itemprop="datePublished">2019-09-21</time>
+    <a href="/2019/10/06/RefineDet/" class="article-date">
+  <time datetime="2019-10-06T11:54:13.000Z" itemprop="datePublished">2019-10-06</time>
 </a>
     
   </div>
@@ -81,7 +83,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      YOLO-v2
+      RefineDet
     </h1>
   
 
@@ -89,30 +91,25 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>提炼<a href="https://arxiv.org/abs/1506.02640" target="_blank" rel="noopener">YOLO-v2</a>，参考<a href="https://zhuanlan.zhihu.com/p/25167153" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/25167153</a></p>
+        <p>提炼<a href="https://arxiv.org/abs/1711.06897" target="_blank" rel="noopener">RefineDet</a>，参考<a href="https://zhuanlan.zhihu.com/p/50244029" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/50244029</a></p>
 <a id="more"></a>
-<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><ul>
-<li>检测9000类物体，加入了很多改进方法，多尺度训练方法（速度与准确度的折衷，尺度越大速度越慢准确度越高）</li>
-<li>准确度和速度均超过了Faster-RCNN</li>
-<li>在目标检测与分类数据集上联合训练，使得在分类数据集上也能进行目标检测（在ImageNet上达到了19.7mAP，在检测数据中未标注类上达到了16.0mAP），使用检测数据集来学习定位物体，使用分类数据集提高词汇量和鲁棒性</li>
-</ul>
-<h2 id="更好"><a href="#更好" class="headerlink" title="更好"></a>更好</h2><ol>
-<li>YOLO相对于两阶段定位错误较多，召回率较低</li>
-<li>BN一定程度上替换了其他的正则化方法（去掉了dropout），并且提高了收敛速度 ↑2%mAP</li>
-<li>针对448*448分辨率的图片进行分类，之前是对224*224分类，对448*448检测，网络需要适应分辨率的切换；改为448*448分类后，↑4%mAP</li>
-<li>Anchor box：对feature map上每个点的维度为（C+5）*B。相对于YOLO，将类别预测放到了每个Anchor box中；这个方法微弱减小了mAP但大幅度提高了召回率</li>
-<li>对GT boxes进行聚类得到Anchor box（prior），距离的度量指标为1-IoU，如果使用四个参数的欧几里得距离，那么大的box的误差会大于小的box的误差，与我们的目标（更大的IoU）不相符；而且关于bounding box位置参数，预测目标是Anchor box与GT的差距【本质上是通过增加Anchor box先验降低神经网络学习难度】；↑5%mAP</li>
-<li>不同细粒度特征融合，为了得到不同resolution的feature map，从而使得提取的特征更加完善，YOLO v2将前一个输出为26*26的layer作为passthrough layer，然后在具体实现时将它切成多个13*13的feature maps，这样再与之前的13*13的输出堆叠成多个feature maps一起进行预测。这样可以获得大约1%的提升。</li>
-<li>多尺度训练，因为降采样比例为32，所以输入的图片大小为32的倍数，每10个Epoch随机选一个尺度</li>
+<h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><p>该模型集成了以下思想：</p>
+<ol>
+<li>多尺度：不同尺度的 feature map 进行预测</li>
+<li>FPN 思想：利用Transfer Connection Block 实现 Top-Down + 同级残差；</li>
+<li>级联思想：将置信度与类别两个任务分开，但是 Anchor box 矫正为 Bounding box 在两个任务都有。<br>· 级联思想缓解了不平衡问题：先得到置信度以过滤大部分背景，很大程度上缓解了前背景 Anchor 不平衡的问题； 假如一起学，两个任务有一定的耦合，虽然使用 Hard Negative Mining 或者 Focal loss 能很好地解决不平衡给置信度的困难，但是其作用毕竟有限，仍然给类别学习遗留了很多困难，因为类别很多受影响更大。而将两个任务解耦合/级联后，不平衡问题得到更彻底的解决。【是否有更高效的解耦方法？】<br>· 两步矫正 Anchor box，也就是两步回归偏差【为什么有效？第二步矫正没有对第一步矫正反向吧】</li>
 </ol>
-<h2 id="更快"><a href="#更快" class="headerlink" title="更快"></a>更快</h2><p>本文利用BN与1*1 conv提出了一个新的网络Darknet用来提取特征，计算量比GoogLenet更小，分类准确度比VGG-16更高</p>
-<h3 id="分类任务的训练："><a href="#分类任务的训练：" class="headerlink" title="分类任务的训练："></a>分类任务的训练：</h3><p>LR=0.1–&gt;0.001(epoch&gt;10)，weight decay=0.0005，momentum = 0.9；随机裁剪旋转，色调，饱和度和曝光调整；input size 224*224–&gt;448*448</p>
-<h3 id="检测任务的训练："><a href="#检测任务的训练：" class="headerlink" title="检测任务的训练："></a>检测任务的训练：</h3><p>修改分类网络结构以适应检测任务，保留相同的部分，在不同的Epoch采用不同的学习率</p>
-<h2 id="更强"><a href="#更强" class="headerlink" title="更强"></a>更强</h2><ul>
-<li>能预测9000类物体，将WordNet转化为WordTree（以添加最少边的原则选择路径），将类别标签设为WordTree所有节点的（条件）概率，如果物体是某个大类下的子类，那么大类和子类节点的标签均为1。</li>
-<li>测试时确定目标类别的方法：由根节点开始根据最大条件概率选择子类，等路径上节点的概率乘积小于某阈值或者到达叶节点时停止。</li>
+<h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><p><img src="https://dujunda.github.io/files/images/RefineDet.png" alt="RefineDet"></p>
+<h2 id="关于参考的额外补充以及注意点"><a href="#关于参考的额外补充以及注意点" class="headerlink" title="关于参考的额外补充以及注意点"></a>关于参考的额外补充以及注意点</h2><ul>
+<li>注意点：anchor尺度、采样方式与S3FD一致：每个检测分支上anchor scale精心设计，刚好是该分支上stride的 4 倍，用于检测特定尺度范围内的目标，anchor三个长宽比；之所以与S3FD的anchor设计方式保持一致，是因为S3FD中可以保证各个检测分支上，不同尺度的anchor有相同的采样密度；【自己实现时注意这些trick！】</li>
+<li>补充：<a href="https://arxiv.org/abs/1707.01691" target="_blank" rel="noopener">RON</a> 中的 object prior 是指我们可以通过 feature map 得到激活图，所有激活图中无热力的地方就是背景，可以过滤掉以缓解类别不平衡的问题【利用置信度可以更大程度的缓解】</li>
 </ul>
-
+<!--
+My IDEA:
+1. ARM 任务中大尺度特征图的深度不够，也许可以进一步改善
+2. 是否应该对矫正与这两个任务解耦，因为矫正任务与这两个任务明显不同，应该分叉，像 RetinaNet？
+3. 利用 1\*1 卷积，Attention机制【将残差中的+变为*】，以及更丰富的连接运算【比如取log 再*，等等】设计更高效的网络
+-->
       
     </div>
     <footer class="article-footer">
@@ -127,19 +124,10 @@
     
 <nav id="article-nav">
   
-    <a href="/2019/09/27/FPN/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          FPN
-        
-      </div>
-    </a>
   
-  
-    <a href="/2019/09/21/SSD/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2019/10/01/Pytorch中文文档理解/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">SSD</div>
+      <div class="article-nav-title">Pytorch中文文档理解</div>
     </a>
   
 </nav>
