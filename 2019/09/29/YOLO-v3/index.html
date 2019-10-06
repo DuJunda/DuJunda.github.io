@@ -16,7 +16,7 @@
 <meta property="og:description" content="提炼YOLO-v3，参考解读与翻译，从配置文件实现YOLO-v3，直接用pytorch实现-v3">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://dujunda.github.io/files/images/YOLOv3.jpg">
-<meta property="og:updated_time" content="2019-10-02T08:30:00.734Z">
+<meta property="og:updated_time" content="2019-10-06T02:19:21.180Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="YOLO-v3">
 <meta name="twitter:description" content="提炼YOLO-v3，参考解读与翻译，从配置文件实现YOLO-v3，直接用pytorch实现-v3">
@@ -100,6 +100,22 @@
 <li><a href="https://www.zhihu.com/question/293369755" target="_blank" rel="noopener">为什么Focal Ioss无效</a></li>
 </ol>
 <h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><p>采用新的网络结构Darknet-53作为主干网络，并使用了FPN的思想，其具体解释见<a href="https://blog.csdn.net/leviopku/article/details/82660381" target="_blank" rel="noopener">https://blog.csdn.net/leviopku/article/details/82660381</a><br><img src="https://dujunda.github.io/files/images/YOLOv3.jpg" alt="YOLO-v3"></p>
+<h2 id="写代码收获"><a href="#写代码收获" class="headerlink" title="写代码收获"></a>写代码收获</h2><p>写代码时参考了上面的网络结构图，论文中的网络表格，和<a href="https://github.com/ne7ermore/yolo-v3" target="_blank" rel="noopener">直接用pytorch实现-v3</a></p>
+<h3 id="加深对论文的理解"><a href="#加深对论文的理解" class="headerlink" title="加深对论文的理解"></a>加深对论文的理解</h3><ol>
+<li>分配 Anchor box 时，并不是综合考虑所有 detect map，而是对每个 detect map 分别考虑。</li>
+<li>寻找与 GT IoU 最大的 Anchor box时，要先找到 GT 中心对应的 grid【对位置向下取整即可】，再假设 GT 中心与 grid 中心相同，计算与 GT IoU 最大的 Anchor。 而不是将所有位置的所有的 anchor 一起与 GT 比较，计算量很大，而这种方法像是一种双门槛计算，而不是综合考虑，是一种近似但是差异很小，节省了计算量。</li>
+<li>只分配给与 GT IoU 最大的 Anchor box，也就是该 Anchor box 有物体，计算该 box 对应的所有损失【4个位置损失分别使用MSE，置信度损失用二进制交叉熵，类别损失用交叉熵】；那其他的 Anchor box 就都没有物体吗？不是，一些有歧义的 Anchor box，也就是与 GT 的 IoU 大于某个阈值，但是又没有 GT 与其 IoU 最大，则忽略，不计算任何损失；其他的 Anchor box 都没有物体，只计算置信度损失</li>
+<li>更具体地，有无物体等情况使用 mask 的形式来表示，以及计算准确度或召回率等指标时，对 mask 进行过滤，不同的 mask 相乘，即可轻松计算。</li>
+</ol>
+<h3 id="其他的收获"><a href="#其他的收获" class="headerlink" title="其他的收获"></a>其他的收获</h3><ol>
+<li>设计网络结构的启发：<br>· 当使用stride=2的卷积汇集特征时，要将通道个数翻倍以减少信息丢失；<br>· 使用 1*1 卷积时将通道个数减半以提纯特征，<br>· 使用 3*3 卷积时将通道个数翻倍以储存多出来的空间联系信息</li>
+<li>ModuleList 和 Sequential 区别(<a href="https://zhuanlan.zhihu.com/p/64990232" target="_blank" rel="noopener">参考</a>)：<br>· ModuleList 未实现 forward，forward 时需要遍历；<br>· Sequential 实现了 forward，无需遍历【也可以使用Sequential(*[…])构造，*代表把 list 中的元素一个个取出来】</li>
+<li>路由层是将较浅层的特征图和当前特征图 cat ，也就是将通道数增加【只要求特征图的大小相同】，而残差是将将较浅层的特征图和当前特征图相加【要求特征图的大小相同和通道数相同】</li>
+<li>stack 与 cat 的区别：cat 不增加维度，而 stack 会增加维度</li>
+<li>view 与 reshape 区别：reshape = contiguous【将语义上相邻的元素变得内存上也相邻】+ view<a href="https://zhuanlan.zhihu.com/p/64551412" target="_blank" rel="noopener">参考</a>；为了保证不改变数据，可以把矩阵维度写出来，比如（batch_size，anchor_num*（4+1+class_num），grid_size，grid_size）可以 reshape 成 （batch_size，anchor_num，（4+1+class_num），grid_size*grid_size），而不能是（batch_size，（4+1+class_num），anchor_num，grid_size*grid_size）或者 （batch_size，，grid_size*grid_size，anchor_num*（4+1+class_num）） 一定要保证顺序一致。【要变成后者可以配合 permute】</li>
+<li>高维矩阵转置使用 permute，transpose只能操作2D矩阵的转置</li>
+<li>detach 与 data 区别：这两种都是 使得数据的 requires_grad = False，但是 detach 更安全。<a href="https://zhuanlan.zhihu.com/p/38475183" target="_blank" rel="noopener">参考</a></li>
+</ol>
 
       
     </div>
