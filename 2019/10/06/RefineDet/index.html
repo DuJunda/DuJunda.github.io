@@ -16,7 +16,7 @@
 <meta property="og:description" content="提炼RefineDet，参考https://zhuanlan.zhihu.com/p/50244029">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://dujunda.github.io/files/images/RefineDet.png">
-<meta property="og:updated_time" content="2019-10-06T12:50:37.666Z">
+<meta property="og:updated_time" content="2019-10-06T13:36:33.956Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RefineDet">
 <meta name="twitter:description" content="提炼RefineDet，参考https://zhuanlan.zhihu.com/p/50244029">
@@ -109,6 +109,7 @@ My IDEA:
 1. ARM 任务中大尺度特征图的深度不够，也许可以进一步改善
 2. 是否应该对矫正与这两个任务解耦，因为矫正任务与这两个任务明显不同，应该分叉，像 RetinaNet？
 3. 利用 1\*1 卷积，Attention机制【将残差中的+变为*】，以及更丰富的连接运算【比如取log 再*，等等】设计更高效的网络
+4. 置信度与类别之所以要解耦，是因为无物体的类别过多，本质属于一种类别不平衡。处理类别不平衡更高效的方式？
 -->
       
     </div>
