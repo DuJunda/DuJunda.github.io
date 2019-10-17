@@ -5,19 +5,22 @@
   
 
   
-  <title>归档: 2019/9 | 杜俊达</title>
+  <title>HDRNet | 杜俊达</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="杜俊达的个人网站">
-<meta name="keywords" content="杜俊达,计算机科学与技术,哈尔滨工业大学,计算机视觉">
-<meta property="og:type" content="website">
-<meta property="og:title" content="杜俊达">
-<meta property="og:url" content="http://yoursite.com/archives/2019/09/page/2/index.html">
+  <meta name="description" content="提炼HDRNet，参考http://simtalk.cn/2018/06/05/HDRNET/">
+<meta name="keywords" content="暗光增强">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HDRNet">
+<meta property="og:url" content="http://yoursite.com/2019/10/17/HDRNet/index.html">
 <meta property="og:site_name" content="杜俊达">
-<meta property="og:description" content="杜俊达的个人网站">
+<meta property="og:description" content="提炼HDRNet，参考http://simtalk.cn/2018/06/05/HDRNET/">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://dujunda.github.io/files/images/HDRNet.png">
+<meta property="og:updated_time" content="2019-10-17T10:58:20.810Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="杜俊达">
-<meta name="twitter:description" content="杜俊达的个人网站">
+<meta name="twitter:title" content="HDRNet">
+<meta name="twitter:description" content="提炼HDRNet，参考http://simtalk.cn/2018/06/05/HDRNET/">
+<meta name="twitter:image" content="https://dujunda.github.io/files/images/HDRNet.png">
   
   
     <link rel="icon" href="/favicon.png">
@@ -66,45 +69,61 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2019" class="archive-year">2019</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2019/09/21/PRML笔记/" class="archive-article-date">
-  <time datetime="2019-09-21T06:24:59.000Z" itemprop="datePublished">9月 21</time>
+        <section id="main"><article id="post-HDRNet" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/10/17/HDRNet/" class="article-date">
+  <time datetime="2019-10-17T09:36:41.000Z" itemprop="datePublished">2019-10-17</time>
 </a>
-      
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/09/21/PRML笔记/">PRML笔记</a>
+    <h1 class="article-title" itemprop="name">
+      HDRNet
     </h1>
   
 
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-
-  <nav id="page-nav">
+      </header>
     
-    <a class="extend prev" rel="prev" href="/archives/2019/09/">&laquo; 上一页</a><a class="page-number" href="/archives/2019/09/">1</a><span class="page-number current">2</span>
-  </nav>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>提炼<a href="https://arxiv.org/abs/1707.02880" target="_blank" rel="noopener">HDRNet</a>，参考<a href="http://simtalk.cn/2018/06/05/HDRNET/" target="_blank" rel="noopener">http://simtalk.cn/2018/06/05/HDRNET/</a></p>
+<a id="more"></a>
+<h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><ol>
+<li>利用双边网格思想挑出所有非连续域，包括位置，强度，以使得低分辨率的字典图能包含高分辨率的大多数信息。正因如此 guidance map 才能根据字典图上采样得到高分辨的光照图</li>
+<li>字典图储存的是各个通道的权重参数（*）以及偏移（+），用于“照亮”原图像；而 guidance map 的存在意义是生成更加灵活的强度，而不仅限于 RGB。</li>
+<li>local features 关注的是与空间相关的局部特征，可用局部直方图均衡化理解；global features 关注的是全局特征，比如室内室外等；如果去掉 global features 也会导致增强局部化，失去了协调性</li>
+</ol>
+<h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><p><img src="https://dujunda.github.io/files/images/HDRNet.png" alt="HDRNet"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/暗光增强/">暗光增强</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/10/06/RefineDet/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">RefineDet</div>
+    </a>
+  
+</nav>
+
+  
+</article>
 
 </section>
         

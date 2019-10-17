@@ -16,7 +16,7 @@
 <meta property="og:description" content="提炼RefineDet，参考https://zhuanlan.zhihu.com/p/50244029">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://dujunda.github.io/files/images/RefineDet.png">
-<meta property="og:updated_time" content="2019-10-06T13:36:33.956Z">
+<meta property="og:updated_time" content="2019-10-07T03:20:47.425Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RefineDet">
 <meta name="twitter:description" content="提炼RefineDet，参考https://zhuanlan.zhihu.com/p/50244029">
@@ -108,8 +108,10 @@
 My IDEA:
 1. ARM 任务中大尺度特征图的深度不够，也许可以进一步改善
 2. 是否应该对矫正与这两个任务解耦，因为矫正任务与这两个任务明显不同，应该分叉，像 RetinaNet？
-3. 利用 1\*1 卷积，Attention机制【将残差中的+变为*】，以及更丰富的连接运算【比如取log 再*，等等】设计更高效的网络
-4. 置信度与类别之所以要解耦，是因为无物体的类别过多，本质属于一种类别不平衡。处理类别不平衡更高效的方式？
+3. 利用 1\*1 卷积，Attention机制【将残差中的+变为*】【训练时采用弱监督https://blog.csdn.net/u014380165/article/details/80602240】【通道注意力与空间注意力】，以及更丰富的连接运算【比如取log 再*，等等】设计更高效的网络
+4. 置信度与类别之所以要解耦，是因为无物体的类别过多，本质属于一种类别不平衡。处理类别不平衡更高效的方式？将hard negative mining或focal loss以处理类别不平衡？
+5. 通道平铺代替上采样，同时令通道数增加，每部分通道负责4个方块中不同的位置【在一定程度上进行了干扰】https://zhuanlan.zhihu.com/p/51992921？
+6. 
 -->
       
     </div>
@@ -124,6 +126,15 @@ My IDEA:
   
     
 <nav id="article-nav">
+  
+    <a href="/2019/10/17/HDRNet/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          HDRNet
+        
+      </div>
+    </a>
   
   
     <a href="/2019/10/01/Pytorch中文文档理解/" id="article-nav-older" class="article-nav-link-wrap">
@@ -147,7 +158,7 @@ My IDEA:
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/目标检测/">目标检测</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/笔记/">笔记</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/暗光增强/">暗光增强</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/目标检测/">目标检测</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/笔记/">笔记</a></li></ul>
     </div>
   </div>
 
@@ -157,7 +168,7 @@ My IDEA:
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/目标检测/" style="font-size: 20px;">目标检测</a> <a href="/tags/笔记/" style="font-size: 10px;">笔记</a>
+      <a href="/tags/暗光增强/" style="font-size: 10px;">暗光增强</a> <a href="/tags/目标检测/" style="font-size: 20px;">目标检测</a> <a href="/tags/笔记/" style="font-size: 15px;">笔记</a>
     </div>
   </div>
 
@@ -179,6 +190,10 @@ My IDEA:
       <ul>
         
           <li>
+            <a href="/2019/10/17/HDRNet/">HDRNet</a>
+          </li>
+        
+          <li>
             <a href="/2019/10/06/RefineDet/">RefineDet</a>
           </li>
         
@@ -192,10 +207,6 @@ My IDEA:
         
           <li>
             <a href="/2019/09/29/FocalLoss/">FocalLoss</a>
-          </li>
-        
-          <li>
-            <a href="/2019/09/27/FPN/">FPN</a>
           </li>
         
       </ul>
