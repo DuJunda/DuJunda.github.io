@@ -5,20 +5,22 @@
   
 
   
-  <title>PRML笔记 | 杜俊达</title>
+  <title>DeepUPE(优图) | 杜俊达</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="我正在阅读《Pattern Recognition and Machine Learning》，简称PRML。以下是各章节的笔记，持续更新中。">
-<meta name="keywords" content="笔记">
+  <meta name="description" content="提炼与阅读DeepUPE">
+<meta name="keywords" content="暗光增强">
 <meta property="og:type" content="article">
-<meta property="og:title" content="PRML笔记">
-<meta property="og:url" content="http://yoursite.com/2019/09/21/PRML笔记/index.html">
+<meta property="og:title" content="DeepUPE(优图)">
+<meta property="og:url" content="http://yoursite.com/2019/10/21/DeepUPE-优图/index.html">
 <meta property="og:site_name" content="杜俊达">
-<meta property="og:description" content="我正在阅读《Pattern Recognition and Machine Learning》，简称PRML。以下是各章节的笔记，持续更新中。">
+<meta property="og:description" content="提炼与阅读DeepUPE">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-10-02T08:11:09.144Z">
+<meta property="og:image" content="https://dujunda.github.io/files/images/DeepUPE.png">
+<meta property="og:updated_time" content="2019-10-21T13:34:31.449Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="PRML笔记">
-<meta name="twitter:description" content="我正在阅读《Pattern Recognition and Machine Learning》，简称PRML。以下是各章节的笔记，持续更新中。">
+<meta name="twitter:title" content="DeepUPE(优图)">
+<meta name="twitter:description" content="提炼与阅读DeepUPE">
+<meta name="twitter:image" content="https://dujunda.github.io/files/images/DeepUPE.png">
   
   
     <link rel="icon" href="/favicon.png">
@@ -67,10 +69,10 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-PRML笔记" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-DeepUPE-优图" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2019/09/21/PRML笔记/" class="article-date">
-  <time datetime="2019-09-21T06:24:59.000Z" itemprop="datePublished">2019-09-21</time>
+    <a href="/2019/10/21/DeepUPE-优图/" class="article-date">
+  <time datetime="2019-10-21T11:15:57.000Z" itemprop="datePublished">2019-10-21</time>
 </a>
     
   </div>
@@ -81,7 +83,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      PRML笔记
+      DeepUPE(优图)
     </h1>
   
 
@@ -89,22 +91,34 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>我正在阅读《Pattern Recognition and Machine Learning》，简称PRML。以下是各章节的笔记，持续更新中。</p>
+        <p>提炼与阅读<a href="http://openaccess.thecvf.com/content_CVPR_2019/html/Wang_Underexposed_Photo_Enhancement_Using_Deep_Illumination_Estimation_CVPR_2019_paper.html" target="_blank" rel="noopener">DeepUPE</a></p>
 <a id="more"></a>
-<ol>
-<li><a href="https://dujunda.github.io/files/PRML/1.pdf" target="_blank" rel="noopener">Introduction</a></li>
-<li><a href="https://dujunda.github.io/files/PRML/2.pdf" target="_blank" rel="noopener">Probablity Distribution</a></li>
-<li><a href="https://dujunda.github.io/files/PRML/3.pdf" target="_blank" rel="noopener">Linear Models for Regression</a></li>
-<li><a href="https://dujunda.github.io/files/PRML/4.pdf" target="_blank" rel="noopener">Linear Models for Classification</a></li>
+<h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><ol>
+<li>借鉴了 HDRNet 大部分东西，但是好像弃用了 guidance map ？</li>
+<li>为照明图添加平滑先验的好处：<br>·  利用平滑先验来约束照明图，可减少过拟合提高泛化<br>·  通过为梯度添加 log(I) 的梯度的倒数的权重，原图暗处纹理丰富的地方的梯度被加强，故权重较小，故平滑约束弱，故提高对比度。</li>
+<li>重建损失为什么定义为 目标*S 与 原图I 的损失？<br>·  为了限制S范围，定位为目标到原图的系数<br>·  变参不能处于分母的位置，否则反向时出错【如果非要定义为目标与预测的损失，那么S需要初始化为Variable**（-1）】</li>
+<li>颜色损失定位为夹角损失的好处：重建损失已经约束了预测与目标的大小，添加颜色损失可以约束预测与目标的 rgb 方向，从而提高色彩先验度</li>
 </ol>
-
+<h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><p><img src="https://dujunda.github.io/files/images/DeepUPE.png" alt="DeepUPE"></p>
+<h2 id="暗光增强的方法"><a href="#暗光增强的方法" class="headerlink" title="暗光增强的方法"></a>暗光增强的方法</h2><h3 id="Retinex-based-Methods："><a href="#Retinex-based-Methods：" class="headerlink" title="Retinex-based Methods："></a>Retinex-based Methods：</h3><p>将图像看作反射率与照明度的乘积；因为颜色容易局部变形，通道之间很复杂，并非线性关系，所以该方法存在局限性<br><a href="https://caibolun.github.io/JieP/index.html" target="_blank" rel="noopener">A joint intrinsic-extrinsic prior model for retinex</a></p>
+<h3 id="Learning-based-Methods："><a href="#Learning-based-Methods：" class="headerlink" title="Learning-based Methods："></a>Learning-based Methods：</h3><ol>
+<li>普通的 pair-data：<br><a href="https://arxiv.org/abs/1707.02880" target="_blank" rel="noopener">2017 SIG-GRAPH: HDRNet</a></li>
+<li>美学驱动/GAN：<br><a href="http://openaccess.thecvf.com/content_cvpr_2018/papers/Chen_Deep_Photo_Enhancer_CVPR_2018_paper.pdf" target="_blank" rel="noopener">2018 CVPR: Unpaired learning for image enhancement from photographs with GANs</a></li>
+<li>强化学习：<br><a href="https://arxiv.org/abs/1709.09602" target="_blank" rel="noopener">2018 SIG-GRAPH: A white-box photo post-processing framework</a>,<br><a href="https://arxiv.org/abs/1804.04450" target="_blank" rel="noopener">2018 CVPR: Distort-and-recover: Color enhancement using deepreinforcement learning</a></li>
+<li>使用传感器的原始数据：<br><a href="https://arxiv.org/abs/1805.01934" target="_blank" rel="noopener">2018 CVPR: Learning to see in the dark</a></li>
+</ol>
+<!--
+My IDEA:
+1. 为平滑损失中的权重，寻找一种可以代替 log 的更好的暗处增强函数，提供了调参的可能
+2. 首先为原图去噪，高斯函数抑制？
+-->
       
     </div>
     <footer class="article-footer">
       
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/笔记/">笔记</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/暗光增强/">暗光增强</a></li></ul>
 
     </footer>
   </div>
@@ -112,15 +126,11 @@
     
 <nav id="article-nav">
   
-    <a href="/2019/09/21/RCNN/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          RCNN
-        
-      </div>
-    </a>
   
+    <a href="/2019/10/17/HDRNet/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">HDRNet</div>
+    </a>
   
 </nav>
 
