@@ -17,7 +17,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://dujunda.github.io/files/images/DPE-GAN.png">
 <meta property="og:image" content="https://dujunda.github.io/files/images/DPE-Detail.png">
-<meta property="og:updated_time" content="2019-10-22T07:28:35.884Z">
+<meta property="og:updated_time" content="2019-10-22T09:34:05.063Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="DPE">
 <meta name="twitter:description" content="提炼与阅读DPE">
@@ -92,7 +92,8 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>提炼与阅读<a href="http://openaccess.thecvf.com/content_cvpr_2018/papers/Chen_Deep_Photo_Enhancer_CVPR_2018_paper.pdf" target="_blank" rel="noopener">DPE</a></p>
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+<p>提炼与阅读<a href="http://openaccess.thecvf.com/content_cvpr_2018/papers/Chen_Deep_Photo_Enhancer_CVPR_2018_paper.pdf" target="_blank" rel="noopener">DPE</a></p>
 <a id="more"></a>
 
 <h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><p>总体结构为 2-way GAN，G 负责将暗光图像增强，D 使得增强后的结果处于目标域，从而指导 G 改善增强的能力。 </p>
@@ -100,6 +101,18 @@
 <p>并在以下方面进行了改进<br>·  针对 G/U-Net，在中间增加了 global feature 的分支，该支路一步步提取到 1*1*128 的特征，复制 32*32 次，与干路中 32*32*128 的特征融合为 32*32*256 的特征<br>·  针对 WGAN-GP 进行改进，提出了 A-WGAN<br>·  对于 2-way 中的 Gx 与 Gx’，他们共享除了 BN 层之外的参数。 如果也共享 BN 的参数，增强结果中的颜色很奇怪，因为输入与生成的输入有着不同的颜色分布，故不应该共享BN层的参数</p>
 <h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><h3 id="总体结构"><a href="#总体结构" class="headerlink" title="总体结构"></a>总体结构</h3><p><img src="https://dujunda.github.io/files/images/DPE-GAN.png" alt="DPE-GAN"></p>
 <h3 id="G-与-D-的结构"><a href="#G-与-D-的结构" class="headerlink" title="G 与 D 的结构"></a>G 与 D 的结构</h3><p><img src="https://dujunda.github.io/files/images/DPE-Detail.png" alt="DPE-Detail"><br>注意 G 设计的几个关键点<br>·  每一次下降采用使用的是 5*5 卷积和 SELU 激活函数<br>·  在核心思想中提到的 global feature 的粘连<br>·  在且仅在最后使用了残差学习</p>
+<h2 id="损失函数设计"><a href="#损失函数设计" class="headerlink" title="损失函数设计"></a>损失函数设计</h2><p>优化 D 的公式：\(\arg \max_{D}\left[A_{D}-\tilde{\lambda} P\right]\)<br>优化 G 的公式：\(\arg \min_{G}\left[-A_{G}+\alpha I+10 \alpha C\right]\)<br>其中 \(\tilde{\lambda}\) 由网络自己调整，\(\alpha\) 权衡对抗损失与一致/相似损失【本文取1000，变化时除10变化，D/G 表示训练时反向次数的比例，本文取50，变化时除10变化】<br>P 为梯度惩罚项：\( P= \underset{\hat{x}}{\mathbb{E}}\left[\max \left(0,\left|\nabla_{\hat{x}} D_{X}(\hat{x})\right|_{2}-1\right)\right]+ \underset{\hat{y}}{\mathbb{E}}\left[\dots\right]\)</p>
+<p>对抗损失 \(A_{D}=\underset{x}{\mathbb{E}}\left[D_{X}(x)\right]-\underset{x^{\prime}}{\mathbb{E}}\left[D_{X}\left(x^{\prime}\right)\right]+\underset{y}{\mathbb{E}}\left[D_{Y}(y)\right]-\underset{y^{\prime}}{\mathbb{E}}\left[D_{Y}\left(y^{\prime}\right)\right]\)<br>\(A_{G}=\underset{x^{\prime}}{\mathbb{E}}\left[D_{X}\left(x^{\prime}\right)\right]+\underset{y^{\prime}}{\mathbb{E}}\left[D_{Y}\left(y^{\prime}\right)\right]\)</p>
+<p>相似损失 \(I=\underset{x, y^{\prime}}{\mathbb{E}}\left[M S E\left(x, y^{\prime}\right)\right]+\underset{y, x^{\prime}}{\mathbb{E}}\left[M S E\left(y, x^{\prime}\right)\right]\)</p>
+<p>一致损失 \(C=\underset{x, x^{\prime \prime}}{\mathbb{E}}\left[M S E\left(x, x^{\prime \prime}\right)\right]+\underset{y, y^{\prime \prime}}{\mathbb{E}}\left[M S E\left(y, y^{\prime \prime}\right)\right]\)</p>
+<h2 id="拓展"><a href="#拓展" class="headerlink" title="拓展"></a>拓展</h2><p>GAN 的进程，<a href="https://blog.csdn.net/qq_25737169/article/details/78857788" target="_blank" rel="noopener">参考</a>：</p>
+<ol>
+<li>WGAN ：<br>·  采用 weight-clipping 的方式满足 Lipschitz constraint 的限制。Lipschitz限制是在样本空间中，要求判别器函数D(x)梯度值不大于一个有限的常数K，通过权重值限制的方式保证了权重参数的有界性，间接限制了其梯度信息。不满足的话容易发生梯度消失和梯度爆炸。<br>·  距离度量不再采用交叉熵损失，改用 wassertein 距离【不太懂】，反正就是不加 log 了，直接相加<br>·  判别器最后一层去掉sigmoid【可能是更好的配合距离度量的改变】</li>
+<li>WGAN-GP<br>使用梯度惩罚替代 weight-clipping 的方式满足 Lipschitz constraint。梯度裁剪的方式容易使权重集中在端点值上，梯度惩罚就是既然Lipschitz限制是要求判别器的梯度不超过K，那么可以通过建立一个损失函数来满足这个要求，即先求出判别器的梯度d(D(x))，然后建立与K之间的二范数就可以实现一个简单的损失函数设计。但是注意到D的梯度的数值空间是整个样本空间，对于图片（既包含了真实数据集也包含了生成出的图片集）这样的数据集来说，维度及其高，显然是及其不适合的计算的。作者提出没必要对整个数据集（真的和生成的）做采样，只要从每一批次的样本中采样就可以了，比如可以产生一个随机数，在生成数据和真实数据上做一个插值，X’ = X*Θ + (1-Θ)*X_fake</li>
+<li>A-WGAN</li>
+</ol>
+<p>·  WGAN-GP 惩罚的梯度是\(\underset{\hat{y}}{\mathbb{E}}\left[\left(\left|\nabla_{\hat{y}} D_{Y}(\hat{y})\right|_{2}-1\right)^{2}\right]\)  ，\(\hat{y}\)是上面说的插值后的采样点；</p>
+<p>·  A-WGAN 惩罚的梯度是 \(\underset{\hat{y}}{\mathbb{E}}\left[\max \left(0,\left|\nabla_{\hat{y}} D_{Y}(\hat{y})\right|_{2}-1\right)\right]\)，只惩罚大于 1 的梯度。</p>
 
       
     </div>
