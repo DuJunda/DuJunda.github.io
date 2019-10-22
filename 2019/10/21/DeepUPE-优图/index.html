@@ -16,7 +16,7 @@
 <meta property="og:description" content="提炼与阅读DeepUPE">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://dujunda.github.io/files/images/DeepUPE.png">
-<meta property="og:updated_time" content="2019-10-21T13:34:31.449Z">
+<meta property="og:updated_time" content="2019-10-22T01:27:10.803Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="DeepUPE(优图)">
 <meta name="twitter:description" content="提炼与阅读DeepUPE">
@@ -96,7 +96,7 @@
 <h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><ol>
 <li>借鉴了 HDRNet 大部分东西，但是好像弃用了 guidance map ？</li>
 <li>为照明图添加平滑先验的好处：<br>·  利用平滑先验来约束照明图，可减少过拟合提高泛化<br>·  通过为梯度添加 log(I) 的梯度的倒数的权重，原图暗处纹理丰富的地方的梯度被加强，故权重较小，故平滑约束弱，故提高对比度。</li>
-<li>重建损失为什么定义为 目标*S 与 原图I 的损失？<br>·  为了限制S范围，定位为目标到原图的系数<br>·  变参不能处于分母的位置，否则反向时出错【如果非要定义为目标与预测的损失，那么S需要初始化为Variable**（-1）】</li>
+<li>重建损失为什么定义为 目标*S 与 原图I 的损失？<br>·  为了限制S范围，定位为目标到原图的系数<br>·  变参不能处于分母的位置，否则反向时容易出现梯度爆炸；如果非要放在分母，需要注意分母不能为0，而且要将学习率调得很小，很难训练</li>
 <li>颜色损失定位为夹角损失的好处：重建损失已经约束了预测与目标的大小，添加颜色损失可以约束预测与目标的 rgb 方向，从而提高色彩先验度</li>
 </ol>
 <h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><p><img src="https://dujunda.github.io/files/images/DeepUPE.png" alt="DeepUPE"></p>
