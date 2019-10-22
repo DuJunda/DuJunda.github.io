@@ -5,19 +5,23 @@
   
 
   
-  <title>归档: 2019/10 | 杜俊达</title>
+  <title>DPE | 杜俊达</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="杜俊达的个人网站">
-<meta name="keywords" content="杜俊达,计算机科学与技术,哈尔滨工业大学,计算机视觉">
-<meta property="og:type" content="website">
-<meta property="og:title" content="杜俊达">
-<meta property="og:url" content="http://yoursite.com/archives/2019/10/index.html">
+  <meta name="description" content="提炼与阅读DPE">
+<meta name="keywords" content="暗光增强">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DPE">
+<meta property="og:url" content="http://yoursite.com/2019/10/22/DPE/index.html">
 <meta property="og:site_name" content="杜俊达">
-<meta property="og:description" content="杜俊达的个人网站">
+<meta property="og:description" content="提炼与阅读DPE">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://dujunda.github.io/files/images/DPE-GAN.png">
+<meta property="og:image" content="https://dujunda.github.io/files/images/DPE-Detail.png">
+<meta property="og:updated_time" content="2019-10-22T07:28:35.884Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="杜俊达">
-<meta name="twitter:description" content="杜俊达的个人网站">
+<meta name="twitter:title" content="DPE">
+<meta name="twitter:description" content="提炼与阅读DPE">
+<meta name="twitter:image" content="https://dujunda.github.io/files/images/DPE-GAN.png">
   
   
     <link rel="icon" href="/favicon.png">
@@ -66,116 +70,61 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2019" class="archive-year">2019</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2019/10/22/DPE/" class="archive-article-date">
-  <time datetime="2019-10-22T06:28:28.000Z" itemprop="datePublished">10月 22</time>
+        <section id="main"><article id="post-DPE" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/10/22/DPE/" class="article-date">
+  <time datetime="2019-10-22T06:28:28.000Z" itemprop="datePublished">2019-10-22</time>
 </a>
-      
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/10/22/DPE/">DPE</a>
+    <h1 class="article-title" itemprop="name">
+      DPE
     </h1>
   
 
-    </header>
-  </div>
-</article>
-  
+      </header>
     
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2019/10/21/DeepUPE-优图/" class="archive-article-date">
-  <time datetime="2019-10-21T11:15:57.000Z" itemprop="datePublished">10月 21</time>
-</a>
+    <div class="article-entry" itemprop="articleBody">
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/10/21/DeepUPE-优图/">DeepUPE(优图)</a>
-    </h1>
-  
+        <p>提炼与阅读<a href="http://openaccess.thecvf.com/content_cvpr_2018/papers/Chen_Deep_Photo_Enhancer_CVPR_2018_paper.pdf" target="_blank" rel="noopener">DPE</a></p>
+<a id="more"></a>
 
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2019/10/17/HDRNet/" class="archive-article-date">
-  <time datetime="2019-10-17T09:36:41.000Z" itemprop="datePublished">10月 17</time>
-</a>
+<h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><p>总体结构为 2-way GAN，G 负责将暗光图像增强，D 使得增强后的结果处于目标域，从而指导 G 改善增强的能力。 </p>
+<p>将数据集划分为三部分，<br>·  一部分是 pair-data，其中的 label 作为目标域，该部分训练时有输入与输出的identity loss，有输入与生成输入的consistency loss，有 D 和 G 的对抗 loss；<br>·  一部分是unpair-data，无对抗 loss<br>·  另一部分作为测试</p>
+<p>并在以下方面进行了改进<br>·  针对 G/U-Net，在中间增加了 global feature 的分支，该支路一步步提取到 1*1*128 的特征，复制 32*32 次，与干路中 32*32*128 的特征融合为 32*32*256 的特征<br>·  针对 WGAN-GP 进行改进，提出了 A-WGAN<br>·  对于 2-way 中的 Gx 与 Gx’，他们共享除了 BN 层之外的参数。 如果也共享 BN 的参数，增强结果中的颜色很奇怪，因为输入与生成的输入有着不同的颜色分布，故不应该共享BN层的参数</p>
+<h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><h3 id="总体结构"><a href="#总体结构" class="headerlink" title="总体结构"></a>总体结构</h3><p><img src="https://dujunda.github.io/files/images/DPE-GAN.png" alt="DPE-GAN"></p>
+<h3 id="G-与-D-的结构"><a href="#G-与-D-的结构" class="headerlink" title="G 与 D 的结构"></a>G 与 D 的结构</h3><p><img src="https://dujunda.github.io/files/images/DPE-Detail.png" alt="DPE-Detail"><br>注意 G 设计的几个关键点<br>·  每一次下降采用使用的是 5*5 卷积和 SELU 激活函数<br>·  在核心思想中提到的 global feature 的粘连<br>·  在且仅在最后使用了残差学习</p>
+
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/10/17/HDRNet/">HDRNet</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2019/10/06/RefineDet/" class="archive-article-date">
-  <time datetime="2019-10-06T11:54:13.000Z" itemprop="datePublished">10月 6</time>
-</a>
+    </div>
+    <footer class="article-footer">
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/10/06/RefineDet/">RefineDet</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2019/10/01/Pytorch中文文档理解/" class="archive-article-date">
-  <time datetime="2019-10-01T04:26:15.000Z" itemprop="datePublished">10月 1</time>
-</a>
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/10/01/Pytorch中文文档理解/">Pytorch中文文档理解</a>
-    </h1>
-  
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/暗光增强/">暗光增强</a></li></ul>
 
-    </header>
+    </footer>
   </div>
-</article>
+  
+    
+<nav id="article-nav">
   
   
-    </div></section>
+    <a href="/2019/10/21/DeepUPE-优图/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">DeepUPE(优图)</div>
+    </a>
   
+</nav>
 
+  
+</article>
 
 </section>
         
