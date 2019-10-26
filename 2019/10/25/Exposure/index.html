@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Exposure | 杜俊达</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="提炼与阅读Exposure: A white-box photo post-processing framework">
+<meta name="keywords" content="暗光增强">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Exposure">
+<meta property="og:url" content="http://yoursite.com/2019/10/25/Exposure/index.html">
+<meta property="og:site_name" content="杜俊达">
+<meta property="og:description" content="提炼与阅读Exposure: A white-box photo post-processing framework">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://dujunda.github.io/files/images/Exposure-train.png">
+<meta property="og:image" content="https://dujunda.github.io/files/images/Exposure-procedure.png">
+<meta property="og:image" content="https://dujunda.github.io/files/images/Exposure-network.png">
+<meta property="og:updated_time" content="2019-10-26T08:31:57.044Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Exposure">
+<meta name="twitter:description" content="提炼与阅读Exposure: A white-box photo post-processing framework">
+<meta name="twitter:image" content="https://dujunda.github.io/files/images/Exposure-train.png">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">杜俊达</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">个人网站</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/aboutme">About Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Exposure" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/10/25/Exposure/" class="article-date">
+  <time datetime="2019-10-25T09:24:09.000Z" itemprop="datePublished">2019-10-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Exposure
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>提炼与阅读<a href="https://arxiv.org/abs/1709.09602" target="_blank" rel="noopener">Exposure: A white-box photo post-processing framework</a></p>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+<a id="more"></a>
+
+<h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><p>使用强化学习进行图像的处理<br>·  动作集合定义为几种传统的图像算子：输入图像得到算子的概率，输入图像以及根据概率随机选择的算子得到算子的参数，以此作为每一步操作的依据；本文使用了8个点连成的折线来近似颜色调整曲线，使其具备了可导性<br>·  Reward 以及状态的价值由 GAN 中的 D 定义，最终的 D 可以学习到目标域的分布，并合理地对生成的结果与目标域的接近程度进行打分<br>·  根据算子概率选择算子该步过程对反向传播造成了困难，故使用 Policy Gradient 方式将该步过程分离开，对 算子概率*Reward 进行反向传播<br>·  </p>
+<h2 id="公式表达"><a href="#公式表达" class="headerlink" title="公式表达"></a>公式表达</h2><p>给定一个轨迹 \(t=\left(s_{0}, a_{0}, s_{1}, a_{1}, \dots, s_{N}\right)\)，其中状态代表图片，动作代表图像算子，我们定义<br>从状态 k 后累计获得的收益是 \(r_{k}^{\gamma}=\sum_{k^{\prime}=0}^{N-k} \gamma^{k^{\prime}} r\left(s_{k+k^{\prime}}, a_{k+k^{\prime}}\right)\)，其中\(\gamma\) 为折扣系数，它越小越关注短期利益<br>最大化的目标是 \(J(\pi)=\underset{s_{0} \sim S_{0} \atop t \sim \pi}{\mathbb{E}}\left[r_{0}^{\gamma} | \pi\right]\), \(S_0\) 表示输入的数据集，\(\pi\) 表示政策指导，也就是算子概率（\(\pi_1\)）以及算子参数（\(\pi_2\)）<br>折价收益通过状态价值 \(V^{\pi}(s)=\underset{t \sim \pi}{\mathbb{E}}\left[r_{0}^{\gamma}\right]\) 和动作价值 \(Q^{\pi}(s, a)=\underset{s_0=s, a_{0}=s \atop t \sim \pi}{\mathbb{E}}\left[r_{0}^{\gamma}\right]\) 定义</p>
+<p>反向传播时<br>·  \(\nabla_{\theta_{1}} J\left(\pi_{\theta}\right)=\underset{s\sim \rho^\pi, a_1 \sim \pi_1(s) \atop a_{2}=\pi_{2}\left(s, a_{1}\right)}{\mathbb{E}}\left[\nabla_{\theta_{1}} \log \pi_{1}\left(a_{1} | s\right) Q\left(s,\left(a_{1}, a_{2}\right)\right)\right]\)，由于根据算子概率选择算子该步过程对反向传播造成了困难，故使用 Policy Gradient 方式将该步过程分离开<br>·  \(\nabla_{\theta_{2}} J\left(\pi_{\theta}\right)=\underset{s \sim \rho^{\pi} \atop a_2 = \pi_2(s,a_1)}{\mathbb{E}}\left[\nabla_{a_{2}} Q\left(s,\left(a_{1}, a_{2}\right)\right) \nabla_{\theta_{2}} \pi_{2}\left(s, a_{1}\right)\right]\)，该步过程比较顺利可以直接反向传播对 \(\pi_2\) 的参数进行更新<br>·  其中 \(\rho^{\pi}(s)=\sum\limits_{k=0 \atop t \sim \pi}^{\infty} \mathbb{P}\left(s_{k}=s\right) \gamma^{k}\) 表示状态 s 在所有状态位置出现的概率的折价和，为什么要综合考虑所有位置呢？因为强化学习的工作原理是玩游戏时将每一局游戏的每一个步骤放入记忆池中，当训练时是从记忆池中随机抽取几个步骤，进行评价然后更新参数，所以我们不知道时根据哪一个步骤进行的更新。<br>·  Q 又是如何定义呢？\(Q^{\pi}(s, a)=\underset{s_0=s,a_{0}=s \atop t \sim \pi}{\mathbb{E}}\left[r\left(s_{0}, a_{0}\right)+\gamma V^{\pi}\left(p\left(s_{0}, a_{0}\right)\right)\right]\)，说白了就是状态 s 采取动作 a 得到新的状态获得的奖励和新的状态的价值，其中奖励与 critic 有关，价值与 value 有关，而且均是采用最新的参数【这两个网络结构相同，如何区分他们的意义呢？需要详细看】<br>·  Value 如何更新呢？\(L_{v}=\underset{s \sim \rho^{\pi} \atop a \sim \pi(s)}{\mathbb{E}}\left[\frac{1}{2} \delta^{2}\right]\)，其中\(\delta = (r(s, a)+\gamma V(p(s, a))-V(s)\) 为 Temporal Difference (TD) error，与 advantage \(A(s, a)=Q(s, a)-V(s)\) 相同。其中 \(V(s)\)与旧的 value 的参数有关，\(V(p(s, a))\) 与新的 value 的参数有关<br>·  Critic/D 如何更新呢？\(L_{w}=\underset{s \in \rho^{\pi}}{\mathbb{E}}[D(s)]-\underset{s \in \text { target dataset }}{\mathbb{E}}[D(s)]\)； 与此同时使用 D 指导更新 G 的参数，\(-L_{\mathrm{actor}}=\mathbb{E}[D(s)]\)【如何控制哪一部分求导和不求导需要详细看】</p>
+<h2 id="训练策略"><a href="#训练策略" class="headerlink" title="训练策略"></a>训练策略</h2><p>强化学习算法和 GAN 都很难训练，使用以下方式来稳定训练的过程</p>
+<ol>
+<li>增加低熵损失以及重复处罚以增强强化学习的探索能力<br>·  平衡 exploitation 和 exploration，也就是是提高目前的决策还是尝试新的决策以探索潜在的较优解。在本文的两阶段的决策中，这个问题尤其突出，也就是常常关注于个别的滤波器而导致其他的滤波器不能被充分探索，与此等价的表现是低熵。 故增加低熵损失来减少奖励：\(R^{\prime}=R-0.05\left(\log |\mathcal{F}|+\sum_{F \in \mathcal{F}} \pi_{1}(F) \log \pi_{1}(F)\right)\)，\(F\) 代表滤波器，\(\pi_1(F)\) 代表\(F\) 滤波器的概率<br>·  实验中会发现滤波器被重复选取的现象，为了避免出现这种决策，在重复选取一个滤波器的时候会有额外的损失，为了让 agent 知道之前选取了哪些滤波器，需要给图片增加额外的 channel</li>
+<li>乱序学习，也就是随机从记忆池中抽取编辑操作<br>在连续步骤中沿着单个轨迹的图像可能高度相关，这种相关对 RL 和 GAN 都是有害的。故同时开始很多局游戏，将每一个编辑步骤放入记忆池里，训练时随机抽取。这种做法一箭双雕，一是起到了 RL 中 experience replay 的作用，使训练过程更稳定，二是起到了 GAN 中 history buffer 的作用，减少了模型冲突【？】</li>
+<li>训练算法<br><img src="https://dujunda.github.io/files/images/Exposure-train.png" alt="Exposure-train.png"><h2 id="工作流程与网络结构"><a href="#工作流程与网络结构" class="headerlink" title="工作流程与网络结构"></a>工作流程与网络结构</h2><h3 id="工作流程"><a href="#工作流程" class="headerlink" title="工作流程"></a>工作流程</h3>将高分辨率的图像变成低分辨率的图像，agent 根据低分辨率的图像进行决策得到滤波器以及滤波器的参数，并进行反向传播。如果要得到高分辨的结果，使用根据低分辨率的图像得到的决策进行高分辨的处理即可<br><img src="https://dujunda.github.io/files/images/Exposure-procedure.png" alt="Exposure-procedure.png"><h3 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h3><img src="https://dujunda.github.io/files/images/Exposure-network.png" alt="Exposure-network.png"></li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/暗光增强/">暗光增强</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/10/22/DPE/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">DPE</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/暗光增强/">暗光增强</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/目标检测/">目标检测</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/笔记/">笔记</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/暗光增强/" style="font-size: 15px;">暗光增强</a> <a href="/tags/目标检测/" style="font-size: 20px;">目标检测</a> <a href="/tags/笔记/" style="font-size: 10px;">笔记</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/10/25/Exposure/">Exposure</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/22/DPE/">DPE</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/21/DeepUPE-优图/">DeepUPE(优图)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/17/HDRNet/">HDRNet</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/06/RefineDet/">RefineDet</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 杜俊达<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/aboutme" class="mobile-nav-link">About Me</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

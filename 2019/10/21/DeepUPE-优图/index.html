@@ -16,7 +16,7 @@
 <meta property="og:description" content="提炼与阅读DeepUPE">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://dujunda.github.io/files/images/DeepUPE.png">
-<meta property="og:updated_time" content="2019-10-22T06:30:57.140Z">
+<meta property="og:updated_time" content="2019-10-25T09:26:41.154Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="DeepUPE(优图)">
 <meta name="twitter:description" content="提炼与阅读DeepUPE">
@@ -93,6 +93,7 @@
       
         <p>提炼与阅读<a href="http://openaccess.thecvf.com/content_CVPR_2019/html/Wang_Underexposed_Photo_Enhancement_Using_Deep_Illumination_Estimation_CVPR_2019_paper.html" target="_blank" rel="noopener">DeepUPE</a></p>
 <a id="more"></a>
+
 <h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><ol>
 <li>借鉴了 HDRNet 大部分东西，但是好像弃用了 guidance map ？</li>
 <li>为照明图添加平滑先验的好处：<br>·  利用平滑先验来约束照明图，可减少过拟合提高泛化<br>·  通过为梯度添加 log(I) 的梯度的倒数的权重，原图暗处纹理丰富的地方的梯度被加强，故权重较小，故平滑约束弱，故提高对比度。</li>
@@ -104,13 +105,14 @@
 <h3 id="Learning-based-Methods："><a href="#Learning-based-Methods：" class="headerlink" title="Learning-based Methods："></a>Learning-based Methods：</h3><ol>
 <li>普通的 pair-data：<br><a href="https://arxiv.org/abs/1707.02880" target="_blank" rel="noopener">2017 SIG-GRAPH: HDRNet</a></li>
 <li>美学驱动/GAN：<br><a href="http://openaccess.thecvf.com/content_cvpr_2018/papers/Chen_Deep_Photo_Enhancer_CVPR_2018_paper.pdf" target="_blank" rel="noopener">2018 CVPR: DPE：Unpaired learning for image enhancement from photographs with GANs</a></li>
-<li>强化学习：<br><a href="https://arxiv.org/abs/1709.09602" target="_blank" rel="noopener">2018 SIG-GRAPH: A white-box photo post-processing framework</a>,<br><a href="https://arxiv.org/abs/1804.04450" target="_blank" rel="noopener">2018 CVPR: Distort-and-recover: Color enhancement using deepreinforcement learning</a></li>
+<li>强化学习：<br><a href="https://arxiv.org/abs/1709.09602" target="_blank" rel="noopener">2018 SIG-GRAPH Exposure: A white-box photo post-processing framework</a>,<br><a href="https://arxiv.org/abs/1804.04450" target="_blank" rel="noopener">2018 CVPR: Distort-and-recover: Color enhancement using deepreinforcement learning</a></li>
 <li>使用传感器的原始数据：<br><a href="https://arxiv.org/abs/1805.01934" target="_blank" rel="noopener">2018 CVPR: Learning to see in the dark</a></li>
 </ol>
 <!--
 My IDEA:
 1. 为平滑损失中的权重，寻找一种可以代替 log 的更好的暗处增强函数，提供了调参的可能
 2. 首先为原图去噪，高斯函数抑制？
+3. 为乘积添加统计先验，类似Anchor
 -->
       
     </div>
@@ -189,6 +191,10 @@ My IDEA:
       <ul>
         
           <li>
+            <a href="/2019/10/25/Exposure/">Exposure</a>
+          </li>
+        
+          <li>
             <a href="/2019/10/22/DPE/">DPE</a>
           </li>
         
@@ -202,10 +208,6 @@ My IDEA:
         
           <li>
             <a href="/2019/10/06/RefineDet/">RefineDet</a>
-          </li>
-        
-          <li>
-            <a href="/2019/10/01/Pytorch中文文档理解/">Pytorch中文文档理解</a>
           </li>
         
       </ul>
