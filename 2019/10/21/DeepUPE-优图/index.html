@@ -16,7 +16,7 @@
 <meta property="og:description" content="提炼与阅读DeepUPE">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://dujunda.github.io/files/images/DeepUPE.png">
-<meta property="og:updated_time" content="2019-10-25T09:26:41.154Z">
+<meta property="og:updated_time" content="2019-11-14T03:29:09.223Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="DeepUPE(优图)">
 <meta name="twitter:description" content="提炼与阅读DeepUPE">
@@ -98,7 +98,7 @@
 <li>借鉴了 HDRNet 大部分东西，但是好像弃用了 guidance map ？</li>
 <li>为照明图添加平滑先验的好处：<br>·  利用平滑先验来约束照明图，可减少过拟合提高泛化<br>·  通过为梯度添加 log(I) 的梯度的倒数的权重，原图暗处纹理丰富的地方的梯度被加强，故权重较小，故平滑约束弱，故提高对比度。</li>
 <li>重建损失为什么定义为 目标*S 与 原图I 的损失？<br>·  为了限制S范围，定位为目标到原图的系数<br>·  变参不能处于分母的位置，否则反向时容易出现梯度爆炸；如果非要放在分母，需要注意分母不能为0，而且要将学习率调得很小，很难训练</li>
-<li>颜色损失定位为夹角损失的好处：重建损失已经约束了预测与目标的大小，添加颜色损失可以约束预测与目标的 rgb 方向，从而提高色彩先验度</li>
+<li>颜色损失定位为夹角损失的好处：重建损失已经约束了预测与目标的大小，添加颜色损失可以约束预测与目标的 rgb 方向，从而提高色彩鲜艳度</li>
 </ol>
 <h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><p><img src="https://dujunda.github.io/files/images/DeepUPE.png" alt="DeepUPE"></p>
 <h2 id="暗光增强的方法"><a href="#暗光增强的方法" class="headerlink" title="暗光增强的方法"></a>暗光增强的方法</h2><h3 id="Retinex-based-Methods："><a href="#Retinex-based-Methods：" class="headerlink" title="Retinex-based Methods："></a>Retinex-based Methods：</h3><p>将图像看作反射率与照明度的乘积；因为颜色容易局部变形，通道之间很复杂，并非线性关系，所以该方法存在局限性<br><a href="https://caibolun.github.io/JieP/index.html" target="_blank" rel="noopener">A joint intrinsic-extrinsic prior model for retinex</a></p>
@@ -159,7 +159,7 @@ My IDEA:
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/优化算法/">优化算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/暗光增强/">暗光增强</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/目标检测/">目标检测</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/笔记/">笔记</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/优化算法/">优化算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图像修复/">图像修复</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/暗光增强/">暗光增强</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/目标检测/">目标检测</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/笔记/">笔记</a></li></ul>
     </div>
   </div>
 
@@ -169,7 +169,7 @@ My IDEA:
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/优化算法/" style="font-size: 10px;">优化算法</a> <a href="/tags/暗光增强/" style="font-size: 16.67px;">暗光增强</a> <a href="/tags/目标检测/" style="font-size: 20px;">目标检测</a> <a href="/tags/笔记/" style="font-size: 13.33px;">笔记</a>
+      <a href="/tags/优化算法/" style="font-size: 10px;">优化算法</a> <a href="/tags/图像修复/" style="font-size: 10px;">图像修复</a> <a href="/tags/暗光增强/" style="font-size: 16.67px;">暗光增强</a> <a href="/tags/目标检测/" style="font-size: 20px;">目标检测</a> <a href="/tags/笔记/" style="font-size: 13.33px;">笔记</a>
     </div>
   </div>
 
@@ -178,7 +178,7 @@ My IDEA:
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li></ul>
     </div>
   </div>
 
@@ -189,6 +189,10 @@ My IDEA:
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2019/11/24/ImageInpainting/">ImageInpainting</a>
+          </li>
         
           <li>
             <a href="/2019/10/27/MAML-模型无关的元学习/">MAML(模型无关的元学习)</a>
@@ -204,10 +208,6 @@ My IDEA:
         
           <li>
             <a href="/2019/10/21/DeepUPE-优图/">DeepUPE(优图)</a>
-          </li>
-        
-          <li>
-            <a href="/2019/10/17/HDRNet/">HDRNet</a>
           </li>
         
       </ul>

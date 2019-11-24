@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>ImageInpainting | 杜俊达</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="2016至今基于深度学习的图像修复算法一览">
+<meta name="keywords" content="图像修复">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImageInpainting">
+<meta property="og:url" content="http://yoursite.com/2019/11/24/ImageInpainting/index.html">
+<meta property="og:site_name" content="杜俊达">
+<meta property="og:description" content="2016至今基于深度学习的图像修复算法一览">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://dujunda.github.io/files/images/CE.png">
+<meta property="og:image" content="https://dujunda.github.io/files/images/GL.png">
+<meta property="og:image" content="https://dujunda.github.io/files/images/GL-train.png">
+<meta property="og:image" content="https://dujunda.github.io/files/images/IMT.png">
+<meta property="og:updated_time" content="2019-11-24T14:01:48.469Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ImageInpainting">
+<meta name="twitter:description" content="2016至今基于深度学习的图像修复算法一览">
+<meta name="twitter:image" content="https://dujunda.github.io/files/images/CE.png">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">杜俊达</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">个人网站</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/aboutme">About Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="w-ImageInpainting" class="article article-type-w" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/11/24/ImageInpainting/" class="article-date">
+  <time datetime="2019-11-24T12:23:42.000Z" itemprop="datePublished">2019-11-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      ImageInpainting
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+<p>2016至今基于深度学习的图像修复算法一览</p>
+<a id="more"></a>
+<h1 id="Context-Encoders-Feature-Learning-by-Inpainting"><a href="#Context-Encoders-Feature-Learning-by-Inpainting" class="headerlink" title="Context Encoders: Feature Learning by Inpainting"></a><a href="https://arxiv.org/abs/1604.07379" target="_blank" rel="noopener">Context Encoders: Feature Learning by Inpainting</a></h1><h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><p>利用自编码器，使用编码器对缺失图像进行编码，在这一过程中期望网络利用上下文对缺失部分有一个假设，使用解码器对编码结果解码试图回归到完整的图像，利用对抗损失帮助网络学到更高级的语义对缺失部分进行填充，通俗来说就是让修复后的图像看起来更像真实图像</p>
+<h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><p><img src="https://dujunda.github.io/files/images/CE.png" alt="CE"><br>Channel-wise fully-connected layer：如果中间的特征图大小为 \((m,n,n)\), 参数量为 \(mn^4\),而不是 \(m^2n^4\)</p>
+<h2 id="损失函数"><a href="#损失函数" class="headerlink" title="损失函数"></a>损失函数</h2><p>Joint Loss：\(\mathcal{L}=\lambda_{rec}\mathcal{L}_{rec}+\lambda_{adv}\mathcal{L}_{adv}\)<br>其中<br>Reconstruction  Loss：\(\mathcal{L}_{r e c}(x)=|\hat{M} \odot(x-F((1-\hat{M}) \odot x))|_{2}^{2}\)<br>Adversarial Loss：\(\mathcal{L}_{a d v}=\max _{D} \mathbb{E}_{x \in \mathcal{X}}[\log (D(x))+\log (1-D(F((1-\hat{M}) \odot x)))]\)</p>
+<h1 id="Globally-and-Locally-Consistent-Image-Completion"><a href="#Globally-and-Locally-Consistent-Image-Completion" class="headerlink" title="Globally and Locally Consistent Image Completion"></a><a href="http://iizuka.cs.tsukuba.ac.jp/projects/completion/data/completion_sig2017.pdf" target="_blank" rel="noopener">Globally and Locally Consistent Image Completion</a></h1><h2 id="核心思想-1"><a href="#核心思想-1" class="headerlink" title="核心思想"></a>核心思想</h2><p>除了Context Encoders中的全局鉴别器外，增加了鉴别包括填充区域及其周边的局部鉴别器以提高局部一致性，也就是不仅让全局像真的，而且更有针对性的让局部像真的，因为CE中局部不真所以要特别针对。其中全局鉴别器的真样本为原图，假样本为修复后的图像，局部鉴别器的真样本是随机crop的，不是补全位置的真样本【WHY？】<br>使用了空洞卷积以获取更广的上下文</p>
+<h2 id="网络结构-1"><a href="#网络结构-1" class="headerlink" title="网络结构"></a>网络结构</h2><p><img src="https://dujunda.github.io/files/images/GL.png" alt="GL"><br>注意全局鉴别器与局部鉴别器真假样本的选择</p>
+<h2 id="损失函数与稳定训练"><a href="#损失函数与稳定训练" class="headerlink" title="损失函数与稳定训练"></a>损失函数与稳定训练</h2><p>重建损失：\(L\left(x, M_{c}\right)=\left|M_{c} \odot\left(C\left(x, M_{c}\right)-x\right)\right|^{2}\)<br>对抗损失：\(\min_{C} \max_{D} \mathbb{E}\left[\log D\left(x, M_{d}\right)+\log \left(1-D\left(C\left(x, M_{c}\right), M_{c}\right)\right]\right.\)<br>联合损失：\(\min_{C} \max_{D} \mathbb{E}\left[L\left(x, M_{c}\right)+\alpha \log D\left(x, M_{d}\right) +\alpha \log \left(1-D\left(C\left(x, M_{c}\right), M_{c}\right)\right)\right]\)<br>稳定的训练方式：先训练填充网络，不改变鉴别网络；然后训练鉴别网络，不改变填充网络；最后两者联合训练，详细见下图<br>测试时进行后处理以消除颜色的不一致性，先 fast marching method，然后 Poissonimage blending<br><img src="https://dujunda.github.io/files/images/GL-train.png" alt="GL-train"></p>
+<h1 id="Contextual-based-Image-Inpainting-Infer-Match-and-Translate"><a href="#Contextual-based-Image-Inpainting-Infer-Match-and-Translate" class="headerlink" title="Contextual-based Image Inpainting: Infer, Match,and Translate"></a><a href="http://openaccess.thecvf.com/content_ECCV_2018/papers/Yuhang_Song_Contextual_Based_Image_ECCV_2018_paper.pdf" target="_blank" rel="noopener">Contextual-based Image Inpainting: Infer, Match,and Translate</a></h1><h2 id="导言"><a href="#导言" class="headerlink" title="导言"></a>导言</h2><ol>
+<li>由于颜色建模的复杂性，GAN无法产生高分辨率的样本，有多尺度方法和加入先验信息缓解</li>
+<li>对高分辨的缺失图像修复，同样有该问题，通过分阶段和利用已知区域可以缓解</li>
+<li>CE只能对小图片和小缺失，high-resolution image inpainting using multi-scale neural patch synthes 使用风格迁移进行图像修复。更具体地说，它使用上下文编码器的输出初始化空洞，然后使用风格迁移技术从边界到空洞传播高频纹理，从而改善纹理。结果表明，匹配神经特征不仅可以传递艺术风格，还可以合成真实世界的图像。该方法是基于优化的，适用于任意大小的图像。但是，计算成本很高，并且修复大图像需要花费很长时间。【待读】</li>
+<li>本文提出了 Image2Feature，Feature2Image 两个阶段的模型，中间使用 patch-swap 将缺失边缘的高频细节传播到缺失部分。Image2Feature 进行了粗略的重建并使用VGG提取特征图</li>
+</ol>
+<h2 id="网络结构-2"><a href="#网络结构-2" class="headerlink" title="网络结构"></a>网络结构</h2><p><img src="https://dujunda.github.io/files/images/IMT.png" alt="IMT"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/图像修复/">图像修复</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/10/27/MAML-模型无关的元学习/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">MAML(模型无关的元学习)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/优化算法/">优化算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图像修复/">图像修复</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/暗光增强/">暗光增强</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/目标检测/">目标检测</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/笔记/">笔记</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/优化算法/" style="font-size: 10px;">优化算法</a> <a href="/tags/图像修复/" style="font-size: 10px;">图像修复</a> <a href="/tags/暗光增强/" style="font-size: 16.67px;">暗光增强</a> <a href="/tags/目标检测/" style="font-size: 20px;">目标检测</a> <a href="/tags/笔记/" style="font-size: 13.33px;">笔记</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/11/24/ImageInpainting/">ImageInpainting</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/27/MAML-模型无关的元学习/">MAML(模型无关的元学习)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/25/Exposure/">Exposure</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/22/DPE/">DPE</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/21/DeepUPE-优图/">DeepUPE(优图)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 杜俊达<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/aboutme" class="mobile-nav-link">About Me</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
