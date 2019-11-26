@@ -19,7 +19,7 @@
 <meta property="og:image" content="https://dujunda.github.io/files/images/GL.png">
 <meta property="og:image" content="https://dujunda.github.io/files/images/GL-train.png">
 <meta property="og:image" content="https://dujunda.github.io/files/images/IMT.png">
-<meta property="og:updated_time" content="2019-11-26T03:59:24.087Z">
+<meta property="og:updated_time" content="2019-11-26T07:33:05.421Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ImageInpainting">
 <meta name="twitter:description" content="2016至今基于深度学习的图像修复算法一览">
@@ -119,13 +119,14 @@
 <h1 id="Image-Inpainting-for-Irregular-Holes-Using-Partial-Convolutions"><a href="#Image-Inpainting-for-Irregular-Holes-Using-Partial-Convolutions" class="headerlink" title="Image Inpainting for Irregular Holes Using Partial Convolutions"></a><a href="https://arxiv.org/abs/1804.07723" target="_blank" rel="noopener">Image Inpainting for Irregular Holes Using Partial Convolutions</a></h1><h2 id="核心思想-2"><a href="#核心思想-2" class="headerlink" title="核心思想"></a>核心思想</h2><ol>
 <li>提出了局部卷积替换现有的卷积，利用 mask 来决定进行卷积的区域，一开始只利用有效像素更新缺失图像边缘，并且不断更新 mask 以使得卷积的区域扩大，最后扩大到整张图片。</li>
 <li>利用了多种损失函数相互补充配合，包括针对网络输出与 GT 的 Pixel，Perceptual，Style，针对输出的缺失区域和原始的组合 与 GT的 Perceptual，Style，Total Variation。Style Loss很重要，有助于解决鱼鳞纹和棋盘格噪声，权重不能太小，但是权重太大的话会损失高频信息。</li>
-<li>收集了不规则孔作为 mask<h2 id="局部卷积"><a href="#局部卷积" class="headerlink" title="局部卷积"></a>局部卷积</h2>W为卷积核，b是偏差，X是当前图片，M是mask。一个窗口内的PConv可以表示为：<br>$$<!--[CDATA[
+<li>收集了不规则孔作为 mask</li>
+</ol>
+<h2 id="局部卷积"><a href="#局部卷积" class="headerlink" title="局部卷积"></a>局部卷积</h2><p>W为卷积核，b是偏差，X是当前图片，M是mask。一个窗口内的PConv可以表示为：<br>$$<!--[CDATA[
 x^{\prime}=\left\{\begin{aligned}
 & W^{T}(X \odot M) \frac{1}{sum(M)}+b  &if \ sum(M)>0\\
 & 0  &otherwise
 \end{aligned}
-\right. %]]-->$$</li>
-</ol>
+\right. %]]-->$$</p>
 <p>此处的\(\frac{1}{sum(M)}\)为放缩因子，在代码实现中被替换为\(\frac{1}{mean(M)}\)<br>mask更新原则：<br>$$<!--[CDATA[
 m^{\prime}=\left\{\begin{aligned}
 & 1  &if \ {sum}(M)>0\\
