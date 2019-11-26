@@ -19,7 +19,7 @@
 <meta property="og:image" content="https://dujunda.github.io/files/images/GL.png">
 <meta property="og:image" content="https://dujunda.github.io/files/images/GL-train.png">
 <meta property="og:image" content="https://dujunda.github.io/files/images/IMT.png">
-<meta property="og:updated_time" content="2019-11-24T23:57:41.104Z">
+<meta property="og:updated_time" content="2019-11-26T03:59:24.087Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ImageInpainting">
 <meta name="twitter:description" content="2016至今基于深度学习的图像修复算法一览">
@@ -94,7 +94,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <script type="text/javascript" src="https://dujunda.github.io/files/scripts/MathJax.js"></script>
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
 <p>2016至今基于深度学习的图像修复算法一览</p>
 <a id="more"></a>
 
@@ -111,6 +111,30 @@
 <li>本文提出了 Image2Feature，Feature2Image 两个阶段的模型，中间使用 patch-swap 将缺失边缘的高频细节传播到缺失部分。Image2Feature 进行了粗略的重建并使用VGG提取特征图</li>
 </ol>
 <h2 id="网络结构-2"><a href="#网络结构-2" class="headerlink" title="网络结构"></a>网络结构</h2><p><img src="https://dujunda.github.io/files/images/IMT.png" alt="IMT"></p>
+<h2 id="训练过程"><a href="#训练过程" class="headerlink" title="训练过程"></a>训练过程</h2><ol>
+<li>Inference：<br>\(L_{G_{1}}=\lambda_{1} L_{\text {perceptual}}+\lambda_{2} L_{a d v}\)<br>\(L_{\text {perceptual}}\left(F, I_{gt}\right)=\left|\mathcal{M}_{F} \circ\left(F_{1}-v g g\left(I_{g t}\right)\right)\right|_{1}\)<br>\(L_{a d v}=\max _{D_{1}} E\left[\log \left(D_{1}\left(I_{0}, I_{g t}\right)\right)+\log \left(1-D_{1}\left(I_{0}, I_{1}\right)\right)\right]\)<br>\(\lambda_{1}=10,\lambda_{2}=1,lr_{G}=2 \mathrm{e}-3,l r_{D}=2 \mathrm{e}-4\),动量被设置为 0.5<br>感知loss/vgg_loss，相对于像素级的损失，这种高层次级的loss会缓解他们导致的高频纹理平滑化的问题，缺陷是会有一部分内容损失，有些不能起到很好的约束。</li>
+<li>Matching：<br>利用与缺失部分相关的 3*3 特征块p‘和已知部分相关的 3*3 特征块p的余弦距离 \(d\left(p, p^{\prime}\right)=\frac{&lt;p, p^{\prime}&gt;}{|p| \cdot\left|p^{\prime}\right|}\) 来决定每一个缺失部分的特征块用哪个块来代替;使用了 Fast patch-based style transfer of arbitrary style 来并行计算</li>
+<li>Translation：<br>直观的方式是直接利用 \(I_1\) 提取的 \(F_1\) 作为 patch-swap 层的输入完成端到端训练，但是由于 \(F_1\) 有很多的噪音和歧义，会导致 patch-swap 的结果不好，这种错误会延伸到到 Feature2Image 学习到的映射。因此在训练时利用 \(I_{gt}\) 提取的 \(F_{gt}\) 作为 patch-swap 层的输入，切断了错误传播，使得 Feature2Image 学习到正确的映射。 在测试时利用 \(I_1\) 提取的 \(F_1\) 作为 patch-swap 层的输入，效果也不差，因为这时的 \(F_1\) 和 \(I_{gt}\) 较像，而且 Feature2Image 的映射具有较好的鲁棒性。<br>训练时的损失函数为\(L_{G_{2}}=\lambda_{1} L_{p e r c e p t u a l}+\lambda_{2} L_{a d v}\)<br>\(L_{\text {perceptual}}\left(I, I_{g t}\right)=\left|v g g(I)-v g g\left(I_{g t}\right)\right|_{2}\)<br>\(L_{a d v}=\max _{D_{0}} E\left[\log \left(D_{2}\left(F_{g t}^{\prime}, I_{g t}\right)\right)+\log \left(1-D_{2}\left(F_{g t}^{\prime}, I\right)\right)\right]\)<br>\(\lambda_{1}=10,\lambda_{2}=1,lr_{G}=2 \mathrm{e}-4,l r_{D}=2 \mathrm{e}-4\),动量被设置为 0.5<br>测试时多尺度得到高分辨为什么合理？Image2Feature 中的 VGG 是固定的吧？【待查代码】</li>
+</ol>
+<h1 id="Image-Inpainting-for-Irregular-Holes-Using-Partial-Convolutions"><a href="#Image-Inpainting-for-Irregular-Holes-Using-Partial-Convolutions" class="headerlink" title="Image Inpainting for Irregular Holes Using Partial Convolutions"></a><a href="https://arxiv.org/abs/1804.07723" target="_blank" rel="noopener">Image Inpainting for Irregular Holes Using Partial Convolutions</a></h1><h2 id="核心思想-2"><a href="#核心思想-2" class="headerlink" title="核心思想"></a>核心思想</h2><ol>
+<li>提出了局部卷积替换现有的卷积，利用 mask 来决定进行卷积的区域，一开始只利用有效像素更新缺失图像边缘，并且不断更新 mask 以使得卷积的区域扩大，最后扩大到整张图片。</li>
+<li>利用了多种损失函数相互补充配合，包括针对网络输出与 GT 的 Pixel，Perceptual，Style，针对输出的缺失区域和原始的组合 与 GT的 Perceptual，Style，Total Variation。Style Loss很重要，有助于解决鱼鳞纹和棋盘格噪声，权重不能太小，但是权重太大的话会损失高频信息。</li>
+<li>收集了不规则孔作为 mask<h2 id="局部卷积"><a href="#局部卷积" class="headerlink" title="局部卷积"></a>局部卷积</h2>W为卷积核，b是偏差，X是当前图片，M是mask。一个窗口内的PConv可以表示为：<br>$$<!--[CDATA[
+x^{\prime}=\left\{\begin{aligned}
+& W^{T}(X \odot M) \frac{1}{sum(M)}+b  &if \ sum(M)>0\\
+& 0  &otherwise
+\end{aligned}
+\right. %]]-->$$</li>
+</ol>
+<p>此处的\(\frac{1}{sum(M)}\)为放缩因子，在代码实现中被替换为\(\frac{1}{mean(M)}\)<br>mask更新原则：<br>$$<!--[CDATA[
+m^{\prime}=\left\{\begin{aligned}
+& 1  &if \ {sum}(M)>0\\
+& 0  &otherwise
+\end{aligned}
+\right. %]]-->$$</p>
+<h2 id="网络结构-3"><a href="#网络结构-3" class="headerlink" title="网络结构"></a>网络结构</h2><p>UNet架构，encoder 是 (pconv+BN+Relu)，decoder 是 最近邻上采样+concat+(pconv+BN+LeakyRelu)</p>
+<h2 id="损失函数-1"><a href="#损失函数-1" class="headerlink" title="损失函数"></a>损失函数</h2><p>Pixel Loss：缺失部分的对应的 m 为 0，已知部分为 1，\(I_{out}\) 为网络预测输出的图片<br>$$L_{h o l e}=\left|(1-M) \odot\left(I_{o u t}-I_{g t}\right)\right|_{1}$$<br>$$L_{v a l i d}=\left|M \odot\left(I_{o u t}-I_{g t}\right)\right|_{1}$$<br>Perceptual Loss：采用 VGG 作为感知特征映射<br>$$L_{p e r c e p t u a l}=\sum_{n=0}^{N-1}\left|\Psi_{n}\left(I_{o u t}\right)-\Psi_{n}\left(I_{g t}\right)\right|_{1}+\sum_{n=0}^{N-1}\left|\Psi_{n}\left(I_{c o m p}\right)-\Psi_{n}\left(I_{g t}\right)\right|_{1}$$<br>Style Loss: 感知特征的自相关矩阵(GammaMatrix)的loss，\(K_n\) 为归一化系数，\(I_{comp}\) 为网络输出的缺失部分与输入的组合<br>$$L_{\text {style}_{\text {out}}}=\sum_{n=0}^{N-1}\left|K_{n}\left(\left(\Psi_{n}\left(I_{\text {out}}\right)\right)^{T}\left(\Psi_{n}\left(I_{\text {out}}\right)\right)-\left(\Psi_{n}\left(I_{g t}\right)\right)^{T}\left(\Psi_{n}\left(I_{g t}\right)\right)\right)\right|_{1}$$<br>$$L_{\text {style}_{c o m p}}=\sum_{n=0}^{N-1}\left|K_{n}\left(\left(\Psi_{n}\left(I_{c o m p}\right)\right)^{T}\left(\Psi_{n}\left(I_{c o m p}\right)\right)-\left(\Psi_{n}\left(I_{g t}\right)\right)^{T}\left(\Psi_{n}\left(I_{g t}\right)\right)\right)\right|_{1}$$<br>Total Variation Loss：促进平滑，缓解噪声以及不一致<br>$$L_{t v}=\sum_{(i, j) \in P,(i, j+1) \in P}\left|I_{c o m p}^{i, j+1}-I_{c o m p}^{i, j+1}\right|_{1}+\sum_{(i, j) \in P,(i+1, j) \in P}\left|I_{c o m p}^{i+1, j}-I_{c o m p}^{i, j}\right|_{1}$$<br>通过在包含 100 张图片的验证集上进行超参搜索，决定了每个 loss 的权重，如下面所示<br>$$L_{t o t a l}=L_{v a l i d}+6 L_{h o l e}+0.05 L_{p e r c e p t u a l}+120\left(L_{s t y l e_{o u t}}+L_{s t y l e_{c o m p}}\right)+0.1 L_{t v}$$</p>
+<h2 id="训练与指标"><a href="#训练与指标" class="headerlink" title="训练与指标"></a>训练与指标</h2><p>使用了三个数据集，kaiming 初始化，因为有 mask 的存在，Encoder 在 训练时是有的，在fine-tune时也有但是参数不再更新了，Decoder 的 BN 一直都有<br>评价指标包括 SSIM，PSNR，MAE，Inception Score。 MAE类似L1，Inception Score综合考虑了一张图片的类别确定性，以及大量图片的类别分布广泛性</p>
 
       
     </div>
