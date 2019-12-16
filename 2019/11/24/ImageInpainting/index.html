@@ -23,7 +23,7 @@
 <meta property="og:image" content="https://dujunda.github.io/files/images/deepfillv1-fine.jpg">
 <meta property="og:image" content="https://dujunda.github.io/files/images/deepfillv1-attention.jpg">
 <meta property="og:image" content="https://dujunda.github.io/files/images/deepfillv2.png">
-<meta property="og:updated_time" content="2019-11-30T09:01:48.267Z">
+<meta property="og:updated_time" content="2019-11-30T10:17:49.537Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ImageInpainting">
 <meta name="twitter:description" content="2016至今基于深度学习的图像修复算法一览">
@@ -156,9 +156,9 @@ m^{\prime}=\left\{\begin{aligned}
 <li>利用 gate conv 代替了 partial conv，定量描述了像素有效度</li>
 <li>由于缺失区域不规则，局部鉴别器不适用，所以提出了 SN-PatchGAN</li>
 </ol>
-<h2 id="网络架构-1"><a href="#网络架构-1" class="headerlink" title="网络架构"></a>网络架构</h2><p><img src="https://dujunda.github.io/files/images/deepfillv2.png" alt="deepfillv2"><br>当训练时，草图通道为 HED 提取出的缺失区域的边缘</p>
+<h2 id="网络架构-1"><a href="#网络架构-1" class="headerlink" title="网络架构"></a>网络架构</h2><p><img src="https://dujunda.github.io/files/images/deepfillv2.png" alt="deepfillv2"><br>当训练时，草图通道为 HED 提取出的缺失区域的边缘<br>鉴别器的输入除了预测和GT之外还有其他输入，这些是作为条件的，作为condition，也就是条件GAN，有助于高分辨与语义处理</p>
 <h2 id="关键点"><a href="#关键点" class="headerlink" title="关键点"></a>关键点</h2><h3 id="gate-conv"><a href="#gate-conv" class="headerlink" title="gate conv"></a>gate conv</h3><p>提出的原因：输入的多样性，包括有效与无效像素，草图通道与缺失通道等，也为了定量描述每个位置像素的有效性<br>具体描述如下：<br>\(\text {Gating}_{y, x}=\sum \sum W_{g} \cdot I\)<br>\(\text {Feature}_{y, x}=\sum \sum W_{f} \cdot I\)<br>\(O_{y, x}=\phi\left(\text {Feature}_{y, x}\right) \odot \sigma\left(\text {Gating}_{y, x}\right)\)，其中 \(\phi\) 可以是任意的激活函数<br>如果是普通卷积，那么输出就是 \(\text {Feature}_{y, x}\)</p>
-<h3 id="SN-PatchGAN"><a href="#SN-PatchGAN" class="headerlink" title="SN-PatchGAN"></a>SN-PatchGAN</h3><p>提出的原因：由于缺失区域不规则，局部鉴别器不适用<br>具体描述：<br>1.利用了 Spectral  normalization  for  generative  adversarial networks 中的 Spectral Normalization 进一步增强训练 GAN 的稳定性<br>2.为了区分输入时真是假，使用了 hinge loss 【WHY？】，具体描述为<br>\(\mathcal{L}_{G}=-\mathbb{E}_{z \sim \mathbb{P}_{z}(z)}\left[D^{s n}(G(z))\right]\)<br>\(\mathcal{L}_{D^{s n}}=\mathbb{E}_{x \sim \mathbb{P}_{\text {data}}(x)}\left[ReLU\left(\mathbb{1}-D^{s n}(x)\right)\right]+\mathbb{E}_{z \sim \mathbb{P}_{z}(z)}\left[ReLU\left(\mathbb{1}+D^{s n}(G(z))\right)\right]\)，其中 \(D^{sn}\) 代表 spectral-normalized 鉴别器，G是图像修复网络，z 为不完整的图像<br>默认权重为 1：1</p>
+<h3 id="SN-PatchGAN"><a href="#SN-PatchGAN" class="headerlink" title="SN-PatchGAN"></a>SN-PatchGAN</h3><p>提出的原因：由于缺失区域不规则，局部鉴别器不适用<br>具体描述：<br>1.利用了 Spectral  normalization  for  generative  adversarial networks 中的 Spectral Normalization 进一步增强训练 GAN 的稳定性，使用权重矩阵的最大奇异值缩放权重，有效地将网络的 Lipschitz 限制为1，但是可能因为权重较小会导致收敛较慢<br>2.为了区分输入时真是假，使用了 hinge loss 【WHY？】，具体描述为<br>\(\mathcal{L}_{G}=-\mathbb{E}_{z \sim \mathbb{P}_{z}(z)}\left[D^{s n}(G(z))\right]\)<br>\(\mathcal{L}_{D^{s n}}=\mathbb{E}_{x \sim \mathbb{P}_{\text {data}}(x)}\left[ReLU\left(\mathbb{1}-D^{s n}(x)\right)\right]+\mathbb{E}_{z \sim \mathbb{P}_{z}(z)}\left[ReLU\left(\mathbb{1}+D^{s n}(G(z))\right)\right]\)，其中 \(D^{sn}\) 代表 spectral-normalized 鉴别器，G是图像修复网络，z 为不完整的图像<br>默认权重为 1：1</p>
 
       
     </div>
