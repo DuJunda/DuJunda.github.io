@@ -7,19 +7,19 @@
   
   <title>ImageSegmetation | 杜俊达</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="任务描述： 输入一张图片，输出每个像素所属的物体类别数据集： VOC2012，MSCOCO 包含了输入的图片，以及对应的像素标签，还有物体类别对应的RGB值方便可视化【主流方法是分类出块，也许可以尝试先分块，再对块分类】 FCN代码：注意转置卷积的参数设置，一不小心会出现棋盘效应；还要注意解卷积核的初始化方式为双线性采样，如果解卷积核和卷积核具备同样的参数，那可以解卷积到相同的结果。  之前的标注">
+  <meta name="description" content="任务描述： 输入一张图片，输出每个像素所属的物体类别数据集： VOC2012，MSCOCO 包含了输入的图片，以及对应的像素标签，还有物体类别对应的RGB值方便可视化【主流方法是分类出块，也许可以尝试先分块，再对块分类】">
 <meta name="keywords" content="语义分割">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ImageSegmetation">
 <meta property="og:url" content="http://yoursite.com/2019/12/19/ImageSegmetation/index.html">
 <meta property="og:site_name" content="杜俊达">
-<meta property="og:description" content="任务描述： 输入一张图片，输出每个像素所属的物体类别数据集： VOC2012，MSCOCO 包含了输入的图片，以及对应的像素标签，还有物体类别对应的RGB值方便可视化【主流方法是分类出块，也许可以尝试先分块，再对块分类】 FCN代码：注意转置卷积的参数设置，一不小心会出现棋盘效应；还要注意解卷积核的初始化方式为双线性采样，如果解卷积核和卷积核具备同样的参数，那可以解卷积到相同的结果。  之前的标注">
+<meta property="og:description" content="任务描述： 输入一张图片，输出每个像素所属的物体类别数据集： VOC2012，MSCOCO 包含了输入的图片，以及对应的像素标签，还有物体类别对应的RGB值方便可视化【主流方法是分类出块，也许可以尝试先分块，再对块分类】">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://pic3.zhimg.com/v2-cd0144f3dbf4a4ccca0b9ee6e04cd512_r.jpg">
-<meta property="og:updated_time" content="2019-12-22T08:18:33.569Z">
+<meta property="og:updated_time" content="2019-12-22T08:19:00.370Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ImageSegmetation">
-<meta name="twitter:description" content="任务描述： 输入一张图片，输出每个像素所属的物体类别数据集： VOC2012，MSCOCO 包含了输入的图片，以及对应的像素标签，还有物体类别对应的RGB值方便可视化【主流方法是分类出块，也许可以尝试先分块，再对块分类】 FCN代码：注意转置卷积的参数设置，一不小心会出现棋盘效应；还要注意解卷积核的初始化方式为双线性采样，如果解卷积核和卷积核具备同样的参数，那可以解卷积到相同的结果。  之前的标注">
+<meta name="twitter:description" content="任务描述： 输入一张图片，输出每个像素所属的物体类别数据集： VOC2012，MSCOCO 包含了输入的图片，以及对应的像素标签，还有物体类别对应的RGB值方便可视化【主流方法是分类出块，也许可以尝试先分块，再对块分类】">
 <meta name="twitter:image" content="https://pic3.zhimg.com/v2-cd0144f3dbf4a4ccca0b9ee6e04cd512_r.jpg">
   
   
@@ -92,6 +92,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>任务描述： 输入一张图片，输出每个像素所属的物体类别<br>数据集： <a href="http://host.robots.ox.ac.uk/pascal/VOC/voc2012/" target="_blank" rel="noopener">VOC2012</a>，<a href="http://host.robots.ox.ac.uk/pascal/VOC/voc2012/" target="_blank" rel="noopener">MSCOCO</a> 包含了输入的图片，以及对应的像素标签，还有物体类别对应的RGB值方便可视化<br>【主流方法是分类出块，也许可以尝试先分块，再对块分类】</p>
+<a id="more"></a>
 <h2 id="FCN"><a href="#FCN" class="headerlink" title="FCN"></a><a href="https://arxiv.org/abs/1411.4038" target="_blank" rel="noopener">FCN</a></h2><p><a href="https://github.com/Kaixhin/FCN-semantic-segmentation/blob/master/model.py" target="_blank" rel="noopener">代码</a>：注意转置卷积的参数设置，一不小心会出现<a href="https://www.cnblogs.com/hellcat/p/9707204.html#_label2_1" target="_blank" rel="noopener">棋盘效应</a>；还要注意解卷积核的初始化方式为双线性采样，如果解卷积核和卷积核具备同样的参数，那可以解卷积到相同的结果。</p>
 <ol>
 <li>之前的标注方法是基于一个大图像分成的一个个图像块进行的，因为全连接层要求输入大小固定。该工作提出了全卷积以处理不同分辨率的图像，因为卷积并未要求输入大小固定，而且全连接层粗略来说可以视为特殊的 1*1 卷积，只是对空间关系具有针对性。故<strong>卷积是相对于全连接来说，是针对性与参数量的折衷，而且利用卷积运算的并发性以及图像对空间针对性的要求低这一特点从中获取收益</strong>。 1*1 卷积是空间参数共享的，只对 channel 具有针对性。【也许可以尝试去掉对 channel 的针对性进一步利用并发获取收益，类似于 1-channel 的 3d 卷积，而且图像对 channel 的针对性的要求也不高，已尝试的在 2d 卷积中嵌入 3d 卷积效果不好】</li>

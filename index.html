@@ -91,28 +91,11 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>任务描述： 输入一张图片，输出每个像素所属的物体类别<br>数据集： <a href="http://host.robots.ox.ac.uk/pascal/VOC/voc2012/" target="_blank" rel="noopener">VOC2012</a>，<a href="http://host.robots.ox.ac.uk/pascal/VOC/voc2012/" target="_blank" rel="noopener">MSCOCO</a> 包含了输入的图片，以及对应的像素标签，还有物体类别对应的RGB值方便可视化<br>【主流方法是分类出块，也许可以尝试先分块，再对块分类】</p>
-<h2 id="FCN"><a href="#FCN" class="headerlink" title="FCN"></a><a href="https://arxiv.org/abs/1411.4038" target="_blank" rel="noopener">FCN</a></h2><p><a href="https://github.com/Kaixhin/FCN-semantic-segmentation/blob/master/model.py" target="_blank" rel="noopener">代码</a>：注意转置卷积的参数设置，一不小心会出现<a href="https://www.cnblogs.com/hellcat/p/9707204.html#_label2_1" target="_blank" rel="noopener">棋盘效应</a>；还要注意解卷积核的初始化方式为双线性采样，如果解卷积核和卷积核具备同样的参数，那可以解卷积到相同的结果。</p>
-<ol>
-<li>之前的标注方法是基于一个大图像分成的一个个图像块进行的，因为全连接层要求输入大小固定。该工作提出了全卷积以处理不同分辨率的图像，因为卷积并未要求输入大小固定，而且全连接层粗略来说可以视为特殊的 1*1 卷积，只是对空间关系具有针对性。故<strong>卷积是相对于全连接来说，是针对性与参数量的折衷，而且利用卷积运算的并发性以及图像对空间针对性的要求低这一特点从中获取收益</strong>。 1*1 卷积是空间参数共享的，只对 channel 具有针对性。【也许可以尝试去掉对 channel 的针对性进一步利用并发获取收益，类似于 1-channel 的 3d 卷积，而且图像对 channel 的针对性的要求也不高，已尝试的在 2d 卷积中嵌入 3d 卷积效果不好】</li>
-<li>池化层有助于提取全局特征/增大感受野，<strong>因为特征图变小了，也有助于提高后面的卷积的对空间的针对性</strong>，但是会损失一部分细节信息，故 FCN 加入跳变连接/残差连接以维持池化前的信息。上采样时利用丰富的信息获得更合理的分割结果，包括 encoder 中的低语义层次的信息和 decoder 中较高语义层次信息【或许可以不局限于上一步的信息，可以把上上步的或者最中间的层的拿过来，其优势在于信息的全局性更强，好像和 densenet 类似】。<strong>特征图较小的全局信息有助于从宏观上把握分割的结果，较大特征图的局部信息有助于完善细节，但是 Decoder 在大特征图上的卷积缺乏对空间的针对性</strong>，PointRender 借助空间特定的 MLP 增强了对“难点”的针对性改善了结果，本质上是对卷积牺牲针对性的补偿，由于是针对“难点”，其收益比代价要高。</li>
-</ol>
-<h2 id="SegNet"><a href="#SegNet" class="headerlink" title="SegNet"></a><a href="https://arxiv.org/abs/1511.0056" target="_blank" rel="noopener">SegNet</a></h2><ol>
-<li>本文提出了一种针对 max pooling 下采样的上采样方式，主要是利用 pooling indices 记录 max pooling 下采样时所取的位置，并利用该位置信息进行 max unpooling 得到稀疏的上采样图，然后进行卷积致密化。其本质是<strong>恢复了下采样时损失的位置信息</strong>增强了边界刻画能力，虽然不如跳跃连接对信息的保持性好，性能也略微降低，但是由于不需要跳跃连接所要求的编码器结果只需要 pooling indices，所以对内存的要求变小，相对于无跳跃连接的利用转置卷积学习上采样的方式和来说取得了很大提升。该模型如果比较上采样+卷积致密的话更能体现pooling indices 会更好。【说明 max pooling 损失的位置信息是很重要的，那除了位置信息还有哪些信息重要呢？卷积下采样又损失了哪些重要信息呢？如何采用非跳变连接的方式恢复呢？】</li>
-<li>本文指出了图像分割的要点在于解码器部分，或者说上采样部分。一是<strong>找出了下采样信息损失的关键点并针对它进行信息恢复</strong>，从而从计算量，内存的折衷过程中获取收益；二是参数越多，效果越好，但是这种提升效果不如针对问题分析后并精心设计的效果。</li>
-<li>本工作控制了很多变量进行实验，包括是否加CRF，是否有跳跃连接，上采样的方式，卷积的方式等等【或许可以尝试在卷积时feature map上赋予权重，而不是简单的相加】</li>
-</ol>
-<h2 id="空洞卷积"><a href="#空洞卷积" class="headerlink" title="空洞卷积"></a><a href="https://arxiv.org/abs/1511.07122" target="_blank" rel="noopener">空洞卷积</a></h2><p><a href="https://www.jianshu.com/p/e0cb772efa46" target="_blank" rel="noopener">思维导图</a>，<a href="https://github.com/Blade6570/Dilation-Pytorch-Semantic-Segmentation/blob/master/CAN_network.py" target="_blank" rel="noopener">代码</a><br>之前的两种方法主要把注意力放在如何保持下采样之前的信息，而本工作关注点是如何设计一个模块，不进行下采样，且能起到下采样的作用，也就是增大感受野/提取全局特征。</p>
-<ol>
-<li>空洞卷积的感受野计算公式为 \(l_{k}=l_{k-1}+\left[d_{k} * \left(f_{k}-1\right) * \prod_{i=1}^{k-1} s_{i}\right]\)，普通卷积的 \(d=1\)，多个卷积层的感受野计算公式为\(L_i = L_{i-1} + (R_i-1),L_0 = 1\)。空洞卷积是一个很重要的模块，而且<strong>它的组合，与其他模块的配合都很有讲究</strong>，详细可见<a href="https://zhuanlan.zhihu.com/p/50369448" target="_blank" rel="noopener">空洞卷积总结</a>，很值得深入研究</li>
-<li>本工作利用空洞卷积改善现有的分割模型，将 Encoder 中的最后两个 pooling 用空洞卷积代替，参数量不增加，感受野增大，分辨率没有降低，始终大于原图像的1/8，但计算量增大了，以此作为前端；后端/Context 使用多个空洞卷积层，dilation 1，2，4，8 指数扩张。使用空洞卷积等价替换 pooling 时，需要用到上面的感受野计算公式，一个感受野等价替换的例子如下图所示，<br><img src="https://pic3.zhimg.com/v2-cd0144f3dbf4a4ccca0b9ee6e04cd512_r.jpg" alt="DRN"></li>
-</ol>
-<h2 id="Deeplab-v1"><a href="#Deeplab-v1" class="headerlink" title="Deeplab v1"></a><a href="https://arxiv.org/abs/1412.7062" target="_blank" rel="noopener">Deeplab v1</a></h2><ol>
-<li>Encoder中用了空洞卷积替换了 VGG-16 后面的两个 Max Pooling，后面的卷积也随之变化，变化方式与上面空洞卷积的感受野等价替换方式不同，<a href="https://github.com/wangleihitcs/DeepLab-V1-PyTorch/blob/master/nets/vgg.py" target="_blank" rel="noopener">代码1</a>，<a href="https://github.com/CoinCheung/Deeplab-Large-FOV/blob/master/lib/model.py" target="_blank" rel="noopener">代码2</a></li>
-<li>在 Decoder 中采用了多尺度预测，</li>
-<li>使用了 CRF 精细化边缘，<a href="https://github.com/kazuto1011/deeplab-pytorch/blob/f7a07fee9b05c7131c1ce4795f03c74dbf842efb/libs/utils/crf.py" target="_blank" rel="noopener">代码</a></li>
-</ol>
-<p><a href="https://arxiv.org/abs/1210.5644" target="_blank" rel="noopener">CRF</a><br>最小化的能量目标 \(E(\boldsymbol{x})=\sum_{i} \theta_{i}\left(x_{i}\right)+\sum_{i j} \theta_{i j}\left(x_{i}, x_{j}\right)\)，该公式来自于贝叶斯公式应用平均场估计后的结果，<a href="https://blog.csdn.net/sunyao_123/article/details/79508547" target="_blank" rel="noopener">参考</a><br>\(\theta_{i}\left(x_{i}\right)=-\log P\left(x_{i}\right)\)<br>\(\theta_{i j}\left(x_{i}, x_{j}\right) = \mu_{i j}\left(x_{i}, x_{j}\right)\left[w_{1} \exp \left(-\frac{\left|p_{i}-p_{j}\right|^{2}}{2 \sigma_{\alpha}^{2}}-\frac{\left|I_{i}-I_{j}\right|^{2}}{2 \sigma_{\beta}^{2}}\right)+w_{2} \exp \left(-\frac{\left|p_{i}-p_{j}\right|^{2}}{2 \sigma_{\gamma}^{2}}\right)\right]\)<br>其中 \(\boldsymbol{x}\) 为所有像素的标签，\(P\left(x_{i}\right)\)为分割模型输出的在像素\(i\)处的标签类别为\(x_i\)的概率，\(\mu\left(x_{i}, x_{j}\right)=1 \text { if } x_{i} \neq x_{j}\)，否则为0。<br>直观理解为，CRF鼓励某个像素的标签为分割模型输出的该位置的标签，鼓励其与位置颜色相近的像素分配同一种标签，而对与位置颜色不相近的像素不加限制。<br>具体计算时，一元势能\(\theta_{i}\left(x_{i}\right)\)取自分割网络模型的输出结果，而二元势能\(\theta_{i j}\left(x_{i}, x_{j}\right)\)的计算通过卷积实现。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/2019/12/19/ImageSegmetation/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
