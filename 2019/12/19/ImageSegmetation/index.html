@@ -16,7 +16,7 @@
 <meta property="og:description" content="任务描述： 输入一张图片，输出每个像素所属的物体类别数据集： VOC2012，MSCOCO 包含了输入的图片，以及对应的像素标签，还有物体类别对应的RGB值方便可视化【主流方法是分类出块，也许可以尝试先分块，再对块分类】">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://pic3.zhimg.com/v2-cd0144f3dbf4a4ccca0b9ee6e04cd512_r.jpg">
-<meta property="og:updated_time" content="2019-12-22T08:22:33.096Z">
+<meta property="og:updated_time" content="2019-12-22T08:23:43.800Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ImageSegmetation">
 <meta name="twitter:description" content="任务描述： 输入一张图片，输出每个像素所属的物体类别数据集： VOC2012，MSCOCO 包含了输入的图片，以及对应的像素标签，还有物体类别对应的RGB值方便可视化【主流方法是分类出块，也许可以尝试先分块，再对块分类】">
@@ -91,7 +91,8 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>任务描述： 输入一张图片，输出每个像素所属的物体类别<br>数据集： <a href="http://host.robots.ox.ac.uk/pascal/VOC/voc2012/" target="_blank" rel="noopener">VOC2012</a>，<a href="http://host.robots.ox.ac.uk/pascal/VOC/voc2012/" target="_blank" rel="noopener">MSCOCO</a> 包含了输入的图片，以及对应的像素标签，还有物体类别对应的RGB值方便可视化<br>【主流方法是分类出块，也许可以尝试先分块，再对块分类】</p>
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+<p>任务描述： 输入一张图片，输出每个像素所属的物体类别<br>数据集： <a href="http://host.robots.ox.ac.uk/pascal/VOC/voc2012/" target="_blank" rel="noopener">VOC2012</a>，<a href="http://host.robots.ox.ac.uk/pascal/VOC/voc2012/" target="_blank" rel="noopener">MSCOCO</a> 包含了输入的图片，以及对应的像素标签，还有物体类别对应的RGB值方便可视化<br>【主流方法是分类出块，也许可以尝试先分块，再对块分类】</p>
 <a id="more"></a>
 <h2 id="FCN"><a href="#FCN" class="headerlink" title="FCN"></a><a href="https://arxiv.org/abs/1411.4038" target="_blank" rel="noopener">FCN</a></h2><p><a href="https://github.com/Kaixhin/FCN-semantic-segmentation/blob/master/model.py" target="_blank" rel="noopener">代码</a>：注意转置卷积的参数设置，一不小心会出现<a href="https://www.cnblogs.com/hellcat/p/9707204.html#_label2_1" target="_blank" rel="noopener">棋盘效应</a>；还要注意解卷积核的初始化方式为双线性采样，如果解卷积核和卷积核具备同样的参数，那可以解卷积到相同的结果。</p>
 <ol>
