@@ -16,7 +16,7 @@
 <meta property="og:description" content="任务描述： 输入一张图片，输出每个像素所属的物体类别数据集： VOC2012，MSCOCO 包含了输入的图片，以及对应的像素标签，还有物体类别对应的RGB值方便可视化【主流方法是分类出块，也许可以尝试先分块，再对块分类】">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://pic3.zhimg.com/v2-cd0144f3dbf4a4ccca0b9ee6e04cd512_r.jpg">
-<meta property="og:updated_time" content="2019-12-22T08:23:43.800Z">
+<meta property="og:updated_time" content="2019-12-22T08:29:36.741Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ImageSegmetation">
 <meta name="twitter:description" content="任务描述： 输入一张图片，输出每个像素所属的物体类别数据集： VOC2012，MSCOCO 包含了输入的图片，以及对应的像素标签，还有物体类别对应的RGB值方便可视化【主流方法是分类出块，也许可以尝试先分块，再对块分类】">
@@ -112,9 +112,8 @@
 <h2 id="Deeplab-v1"><a href="#Deeplab-v1" class="headerlink" title="Deeplab v1"></a><a href="https://arxiv.org/abs/1412.7062" target="_blank" rel="noopener">Deeplab v1</a></h2><ol>
 <li>Encoder中用了空洞卷积替换了 VGG-16 后面的两个 Max Pooling，后面的卷积也随之变化，变化方式与上面空洞卷积的感受野等价替换方式不同，<a href="https://github.com/wangleihitcs/DeepLab-V1-PyTorch/blob/master/nets/vgg.py" target="_blank" rel="noopener">deeplab-LargeFOV代码</a></li>
 <li>在 Decoder 中采用了融合了多尺度信息，类似于在 FCN 中提到的</li>
-<li>使用了 CRF 精细化边缘，<a href="https://github.com/kazuto1011/deeplab-pytorch/blob/f7a07fee9b05c7131c1ce4795f03c74dbf842efb/libs/utils/crf.py" target="_blank" rel="noopener">代码</a></li>
+<li><strong>使用了 CRF 精细化边缘</strong>，<a href="https://github.com/kazuto1011/deeplab-pytorch/blob/f7a07fee9b05c7131c1ce4795f03c74dbf842efb/libs/utils/crf.py" target="_blank" rel="noopener">代码</a>，本质上是利用低层次信息用于出色块【说明了出块的重要性以及相较于分类的简单性，先出块再分类】<br><a href="https://arxiv.org/abs/1210.5644" target="_blank" rel="noopener">CRF</a><br>最小化的能量目标 \(E(\boldsymbol{x})=\sum_{i} \theta_{i}\left(x_{i}\right)+\sum_{i j} \theta_{i j}\left(x_{i}, x_{j}\right)\)，该公式来自于贝叶斯公式应用平均场估计后的结果，<a href="https://blog.csdn.net/sunyao_123/article/details/79508547" target="_blank" rel="noopener">参考</a><br>\(\theta_{i}\left(x_{i}\right)=-\log P\left(x_{i}\right)\)<br>\(\theta_{i j}\left(x_{i}, x_{j}\right) = \mu_{i j}\left(x_{i}, x_{j}\right)\left[w_{1} \exp \left(-\frac{\left|p_{i}-p_{j}\right|^{2}}{2 \sigma_{\alpha}^{2}}-\frac{\left|I_{i}-I_{j}\right|^{2}}{2 \sigma_{\beta}^{2}}\right)+w_{2} \exp \left(-\frac{\left|p_{i}-p_{j}\right|^{2}}{2 \sigma_{\gamma}^{2}}\right)\right]\)<br>其中 \(\boldsymbol{x}\) 为所有像素的标签，\(P\left(x_{i}\right)\)为分割模型输出的在像素\(i\)处的标签类别为\(x_i\)的概率，\(\mu\left(x_{i}, x_{j}\right)=1 \text { if } x_{i} \neq x_{j}\)，否则为0。<br>直观理解为，CRF鼓励某个像素的标签为分割模型输出的该位置的标签，鼓励其与位置颜色相近的像素分配同一种标签，而对与位置颜色不相近的像素不加限制。<br>具体计算时，一元势能\(\theta_{i}\left(x_{i}\right)\)取自分割网络模型的输出结果，而二元势能\(\theta_{i j}\left(x_{i}, x_{j}\right)\)的计算通过卷积实现。</li>
 </ol>
-<p><a href="https://arxiv.org/abs/1210.5644" target="_blank" rel="noopener">CRF</a><br>最小化的能量目标 \(E(\boldsymbol{x})=\sum_{i} \theta_{i}\left(x_{i}\right)+\sum_{i j} \theta_{i j}\left(x_{i}, x_{j}\right)\)，该公式来自于贝叶斯公式应用平均场估计后的结果，<a href="https://blog.csdn.net/sunyao_123/article/details/79508547" target="_blank" rel="noopener">参考</a><br>\(\theta_{i}\left(x_{i}\right)=-\log P\left(x_{i}\right)\)<br>\(\theta_{i j}\left(x_{i}, x_{j}\right) = \mu_{i j}\left(x_{i}, x_{j}\right)\left[w_{1} \exp \left(-\frac{\left|p_{i}-p_{j}\right|^{2}}{2 \sigma_{\alpha}^{2}}-\frac{\left|I_{i}-I_{j}\right|^{2}}{2 \sigma_{\beta}^{2}}\right)+w_{2} \exp \left(-\frac{\left|p_{i}-p_{j}\right|^{2}}{2 \sigma_{\gamma}^{2}}\right)\right]\)<br>其中 \(\boldsymbol{x}\) 为所有像素的标签，\(P\left(x_{i}\right)\)为分割模型输出的在像素\(i\)处的标签类别为\(x_i\)的概率，\(\mu\left(x_{i}, x_{j}\right)=1 \text { if } x_{i} \neq x_{j}\)，否则为0。<br>直观理解为，CRF鼓励某个像素的标签为分割模型输出的该位置的标签，鼓励其与位置颜色相近的像素分配同一种标签，而对与位置颜色不相近的像素不加限制。<br>具体计算时，一元势能\(\theta_{i}\left(x_{i}\right)\)取自分割网络模型的输出结果，而二元势能\(\theta_{i j}\left(x_{i}, x_{j}\right)\)的计算通过卷积实现。</p>
 
       
     </div>
