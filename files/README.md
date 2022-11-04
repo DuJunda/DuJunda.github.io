@@ -1,16 +1,16 @@
 127.0.0.1=<local_ip>
 1080=<local_port>
 # Step 1 ssh
-ssh -ND 127.0.0.1:1080 -p <server_ssh_port> <usr>@<server_ip>
+  $ssh -ND 127.0.0.1:1080 -p <server_ssh_port> <usr>@<server_ip>
 
 # Step 2 Proxy
   ## requests
-  pip3 install requests[socks]  
+  $pip3 install requests[socks]  
   $python3  
   >requests.get("http://www.google.com",proxies={'http':'socks5h://127.0.0.1:1080', 'https':'socks5h://127.0.0.1:1080'})  
   \# *socks5h represents that the domain name is resolved by the server, socks5 represents local* 
   ## ccxt
-  pip3 install requests[socks]  
+  $pip3 install requests[socks]  
   $python3
   >import ccxt  
   >binance.proxies = {'http': 'socks5h://127.0.0.1:1080','https': 'socks5h://127.0.0.1:1080'}  
