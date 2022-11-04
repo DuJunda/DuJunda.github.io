@@ -40,5 +40,9 @@
   $python3 #test
   >import requests  
   >requests.get("http://www.google.com")  
-  
 
+
+  ### andriod
+  install [juicessh](https://dujunda.github.io/files/SwitchyOmega.zip) and [postern](https://dujunda.github.io/files/SwitchyOmega.zip), then config  
+  
+  
