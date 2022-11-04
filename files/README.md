@@ -32,10 +32,13 @@
   >export http_proxy="socks5h://127.0.0.1:1080"  
   >export https_proxy="socks5h://127.0.0.1:1080"  
   >export no_proxy="localhost, 127.0.0.1"  
+  
   $sudo visudo #add line  
   >Defaults        env_keep+="http_proxy https_proxy no_proxy"  
+  
   $reboot  
   $python3 #test
   >import requests  
   >requests.get("http://www.google.com")  
+  
 
