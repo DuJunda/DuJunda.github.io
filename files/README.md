@@ -32,6 +32,6 @@ ssh -ND 127.0.0.1:1080 -p <server_ssh_port> <usr>@<server_ip>
   Defaults        env_keep+="http_proxy https_proxy no_proxy"  
   $reboot  
   $python3 #test
-  >import requests
-  >requests.get("http://www.google.com")
+  >import requests  
+  >requests.get("http://www.google.com")  
 
