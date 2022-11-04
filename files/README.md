@@ -6,11 +6,15 @@ ssh -ND 127.0.0.1:1080 -p <server_ssh_port> <usr>@<server_ip>
 # Step 2 Proxy
   ## requests
   pip3 install requests[socks]  
-  requests.get("http://www.google.com",proxies={'http':'socks5h://127.0.0.1:1080', 'https':'socks5h://127.0.0.1:1080'})  
+  $python3  
+  >requests.get("http://www.google.com",proxies={'http':'socks5h://127.0.0.1:1080', 'https':'socks5h://127.0.0.1:1080'})  
   \# *socks5h represents that the domain name is resolved by the server, socks5 represents local* 
   ## ccxt
   pip3 install requests[socks]  
-  binance.proxies = {'http': 'socks5h://127.0.0.1:1080','https': 'socks5h://127.0.0.1:1080'}  
+  $python3
+  >import ccxt  
+  >binance.proxies = {'http': 'socks5h://127.0.0.1:1080','https': 'socks5h://127.0.0.1:1080'}  
+  >binance.fapiPublicGetTickerPrice()  
   ## browser[recommended]
   install extension [SwitchyOmega](https://dujunda.github.io/files/SwitchyOmega.zip) or [SwitchySharp](https://dujunda.github.io/files/SwitchySharp.zip)  
   proxy protocol select **socks5**  
