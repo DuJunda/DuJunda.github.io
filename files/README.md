@@ -42,7 +42,7 @@
   >requests.get("http://www.google.com")  
 
 
-  ### andriod
+  ### android
   install [juicessh](https://dujunda.github.io/files/JuiceSSH_2.1.4_Mod.apk) and [postern](https://dujunda.github.io/files/Postern_v3.1.3.apk), then config postern with [postern conf file](https://dujunda.github.io/files/postern.conf)
   
   
