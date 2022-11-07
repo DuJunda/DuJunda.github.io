@@ -14,6 +14,7 @@
   $pip3 install requests[socks]  
   $python3  
   >import ccxt  
+  >binance = ccxt.binance()  
   >binance.proxies = {'http': 'socks5h://127.0.0.1:1080','https': 'socks5h://127.0.0.1:1080'}  
   >binance.fapiPublicGetTickerPrice()  
 
@@ -43,7 +44,7 @@
   >import requests  
   >requests.get("http://www.google.com")  
 
-  ### android
+  ### android  
   install [juicessh](https://dujunda.github.io/files/JuiceSSH_2.1.4_Mod.apk) and [postern](https://dujunda.github.io/files/Postern_v3.1.3.apk), then config postern with [postern conf file](https://dujunda.github.io/files/postern.conf)
   
   
