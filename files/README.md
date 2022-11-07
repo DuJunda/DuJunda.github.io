@@ -1,7 +1,7 @@
-127.0.0.1=<local_ip>
-1080=<local_port>
+127.0.0.1=【local_ip】
+1080=【local_port】
 # Step 1 ssh
-  $ssh -ND 127.0.0.1:1080 -p <server_ssh_port> \<usr\>@<server_ip>
+  $ssh -ND 127.0.0.1:1080 -p 【server_ssh_port】 【usr】@【server_ip】
 
 # Step 2 Proxy
   ## requests
