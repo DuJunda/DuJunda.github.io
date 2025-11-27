@@ -1,0 +1,66 @@
+# sudo docker pull debian:11
+sudo docker run -itd --name container debian:11 /bin/bash && sudo docker exec -it  container /bin/bash -c "echo nameserver 8.8.8.8 > /etc/resolv.conf"
+sudo docker cp install-common.bash container:/root/; sudo docker cp install-py.bash container:/root/
+sudo docker exec -it  container /bin/bash -c "bash ~/install-common.bash; bash ~/install-py.bash"
+sudo docker commit container debian:py
+sudo docker stop  container; sudo docker rm container
+
+sudo docker run -it --name debpy  -p 2200:22 --restart=always --shm-size $(grep MemTotal /proc/meminfo | awk '{print int($2/2048/1024)}')g debian:py /bin/bash /init.bash
+
+
+
+
+#************************************************************install-common.bash*********************************************************************
+#-------------------------------SetPasswd----------------------------------------
+echo 'export LANG="C.UTF-8"' >> /etc/profile; source /etc/profile
+echo -e "debian\ndebian" | passwd root
+#--------------------------Update sources.list------------------------------------
+echo nameserver 8.8.8.8 > /etc/resolv.conf
+echo '
+deb http://mirrors.aliyun.com/debian/ bullseye main non-free contrib
+deb http://mirrors.aliyun.com/debian-security/ bullseye-security main
+deb http://mirrors.aliyun.com/debian/ bullseye-updates main non-free contrib
+deb http://mirrors.aliyun.com/debian/ bullseye-backports main non-free contrib
+' > /etc/apt/sources.list
+apt update > /dev/null
+#-----------Install----------
+apt install nano ssh tmux htop net-tools wget curl iputils-ping rsync -y
+#------------------------------------init.bash--------------------------------------
+
+cat <<'EOF' > /init.bash
+# Write the start up script
+echo nameserver 8.8.8.8 > /etc/resolv.conf
+# bash /root/CoinQuant/RunBashes/start.bash &
+service ssh start && sleep 5;
+bash -c ' while true; do ( n="ssh" ; if [[ $(service "$n" status) != *"Active: active (running)"* ]] && [[ $(service "$n" status) != *"is running."* ]]; then service "$n" start ; echo start $n at $(date) >> /restart.txt; fi ) ; sleep 30 ; done ' &
+# End
+echo start at $(date) >> start.txt
+/bin/bash
+EOF
+
+#---------Config ssh-----------
+# ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ""
+echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+# if [[ $(arch) == "aarch64"  ]];then echo "Port 2200" >> /etc/ssh/sshd_config; fi
+service ssh restart
+#*******************************************************************************************************************************************************
+
+
+
+
+#************************************************************install-py.bash[pip3]*********************************************************************
+#-----------Install----------
+apt install python3 python3-pip -y
+#---------Config python-----------
+pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+pip3 install numpy==1.23.5 pandas==1.5.3 scipy==1.10.1 scikit-learn==1.2.2 numba==0.56.4 psutil==5.9.0 
+pip3 install requests[socks] dill
+pip3 install ipykernel==6.19.2 matplotlib==3.7.1 #for visualization
+pip3 install ccxt #for trade
+if [[ $(arch) == "x86_64"  ]];then pip3 install torch==1.13.1+cpu -f https://download.pytorch.org/whl/torch_stable.html;
+elif [[ $(arch) == "aarch64"  ]];then pip3 install torch==1.13.1;
+else echo "You need install torch manually!"; fi
+#---------Clean Cache--------------
+du -sh $(pip3 cache dir) && pip3 cache purge && du -sh $(pip3 cache dir)
+apt autoremove && du -sh /var/cache/apt/archives && apt clean &&du -sh /var/cache/apt/archives
+#*******************************************************************************************************************************************************
