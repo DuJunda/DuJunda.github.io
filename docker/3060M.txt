@@ -9,7 +9,7 @@ echo '
 deb http://mirrors.aliyun.com/debian/ bullseye main non-free contrib
 deb http://mirrors.aliyun.com/debian-security/ bullseye-security main
 deb http://mirrors.aliyun.com/debian/ bullseye-updates main non-free contrib
-# deb http://mirrors.aliyun.com/debian/ bullseye-backports main non-free contrib
+#deb http://mirrors.aliyun.com/debian/ bullseye-backports main non-free contrib
 ' > /etc/apt/sources.list
 apt update > /dev/null
 #--------------------------------Install-------------------------------------
@@ -20,13 +20,19 @@ echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 service ssh restart
 systemctl enable ssh #开机自启
 #--------------------------------config wifi-------------------------------------
-apt install firmware-iwlwifi #安装网卡驱动
-modprobe -r iwlwifi && modprobe iwlwifi #加载驱动模块
+sudo apt install firmware-iwlwifi #安装网卡驱动
+sudo modprobe -r iwlwifi && sudo modprobe iwlwifi #加载驱动模块
 # nmcli general status # 查看 NetworkManager 状态
 # nmcli radio wifi on # 打开 Wi‑Fi（如果被关闭）
 nmcli device wifi list # 扫描可用的无线网络
-nmcli device wifi connect <SSID> password <password> #连接wifi
+sudo nmcli device wifi connect <SSID> password <password> #连接wifi
 # nmcli connection show --active #查看当前活动的连接
+# nmcli connection show <WifiName> | grep -E 'permissions|psk-flags|autoconnect'
+   #permissions 应该为空，表示该连接由系统管理，否则只有对应用户登录才会连接。
+   #wifi-sec.psk-flags 应该是 0（明文存放在系统连接文件中）。
+   #connection.autoconnect 必须是 yes。
+# 如果不满足上述条件，先删除原来的用户专属连接，再用 sudo 创建系统连接，密码会直接写入 /etc/NetworkManager/system-connections/
+# sudo nmcli connection delete <WifiName>; sudo nmcli device wifi connect <SSID> password <password>
 
 #--------------------------------config docker-------------------------------------
 # 1. 清理旧版 Docker（如果系统中已有旧的 Docker 包）
