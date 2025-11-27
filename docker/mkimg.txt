@@ -13,7 +13,6 @@ sudo docker run -it --name debpy  -p 2200:22 --restart=always --shm-size $(grep 
 #************************************************************install-common.bash*********************************************************************
 #-------------------------------SetPasswd----------------------------------------
 echo 'export LANG="C.UTF-8"' >> /etc/profile; source /etc/profile
-echo -e "debian\ndebian" | passwd root
 #--------------------------Update sources.list------------------------------------
 echo nameserver 8.8.8.8 > /etc/resolv.conf
 echo '
