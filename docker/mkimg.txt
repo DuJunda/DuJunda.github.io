@@ -1,16 +1,6 @@
-# sudo docker pull debian:11
-sudo docker run -itd --name container debian:11 /bin/bash && sudo docker exec -it  container /bin/bash -c "echo nameserver 8.8.8.8 > /etc/resolv.conf"
-sudo docker cp install-common.bash container:/root/; sudo docker cp install-py.bash container:/root/
-sudo docker exec -it  container /bin/bash -c "bash ~/install-common.bash; bash ~/install-py.bash"
-sudo docker commit container debian:py
-sudo docker stop  container; sudo docker rm container
+sudo passwd root
+su root
 
-sudo docker run -it --name debpy  -p 2200:22 --restart=always --shm-size $(grep MemTotal /proc/meminfo | awk '{print int($2/2048/1024)}')g debian:py /bin/bash /init.bash
-
-
-
-
-#************************************************************install-common.bash*********************************************************************
 #-------------------------------SetPasswd----------------------------------------
 echo 'export LANG="C.UTF-8"' >> /etc/profile; source /etc/profile
 #--------------------------Update sources.list------------------------------------
@@ -19,47 +9,56 @@ echo '
 deb http://mirrors.aliyun.com/debian/ bullseye main non-free contrib
 deb http://mirrors.aliyun.com/debian-security/ bullseye-security main
 deb http://mirrors.aliyun.com/debian/ bullseye-updates main non-free contrib
-deb http://mirrors.aliyun.com/debian/ bullseye-backports main non-free contrib
+# deb http://mirrors.aliyun.com/debian/ bullseye-backports main non-free contrib
 ' > /etc/apt/sources.list
 apt update > /dev/null
-#-----------Install----------
+#--------------------------------Install-------------------------------------
 apt install nano ssh tmux htop net-tools wget curl iputils-ping rsync -y
-#------------------------------------init.bash--------------------------------------
-
-cat <<'EOF' > /init.bash
-# Write the start up script
-echo nameserver 8.8.8.8 > /etc/resolv.conf
-# bash /root/CoinQuant/RunBashes/start.bash &
-service ssh start && sleep 5;
-bash -c ' while true; do ( n="ssh" ; if [[ $(service "$n" status) != *"Active: active (running)"* ]] && [[ $(service "$n" status) != *"is running."* ]]; then service "$n" start ; echo start $n at $(date) >> /restart.txt; fi ) ; sleep 30 ; done ' &
-# End
-echo start at $(date) >> start.txt
-/bin/bash
-EOF
-
-#---------Config ssh-----------
-# ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ""
+#--------------------------------config ssh-------------------------------------
 echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 # if [[ $(arch) == "aarch64"  ]];then echo "Port 2200" >> /etc/ssh/sshd_config; fi
 service ssh restart
-#*******************************************************************************************************************************************************
+systemctl enable ssh #开机自启
+#--------------------------------config wifi-------------------------------------
+apt install firmware-iwlwifi #安装网卡驱动
+modprobe -r iwlwifi && modprobe iwlwifi #加载驱动模块
+# nmcli general status # 查看 NetworkManager 状态
+# nmcli radio wifi on # 打开 Wi‑Fi（如果被关闭）
+nmcli device wifi list # 扫描可用的无线网络
+nmcli device wifi connect <SSID> password <password> #连接wifi
+# nmcli connection show --active #查看当前活动的连接
 
+#--------------------------------config docker-------------------------------------
+# 1. 清理旧版 Docker（如果系统中已有旧的 Docker 包）
+sudo apt-get remove -y docker docker-engine docker.io containerd runc
+# 2. 更新软件包索引并安装必要的依赖
+sudo apt update
+sudo apt install -y ca-certificates curl gnupg lsb-release
+# 3. 添加 Docker 官方 GPG 密钥（使用国内镜像加速）
+# 3.1 导入 GPG 公钥
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker-archive-keyring.gpg
+sudo chmod a+r /etc/apt/keyrings/docker-archive-keyring.gpg
+# 3.2 配置 APT 软件源
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker-archive-keyring.gpg] \
+https://mirrors.aliyun.com/docker-ce/linux/debian bullseye stable" | \
+sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+# 4. 再次更新索引并安装 Docker Engine 及相关组件
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+#5. 启动 Docker 并设置开机自启
+sudo systemctl start docker
+sudo systemctl enable docker
 
+6. 验证是否安装成功
+docker --version
+sudo docker run --rm hello-world
+如果看到类似 Hello from Docker! 的输出，说明 Docker 已经正常运行。
+>>sudo nano /etc/docker/daemon.json
+{
+"registry-mirrors":["https://docker.1ms.run"]
+}
+>>sudo systemctl daemon-reload
+>>sudo systemctl restart docker
+>>sudo docker pull debian:11
 
-
-#************************************************************install-py.bash[pip3]*********************************************************************
-#-----------Install----------
-apt install python3 python3-pip -y
-#---------Config python-----------
-pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-pip3 install numpy==1.23.5 pandas==1.5.3 scipy==1.10.1 scikit-learn==1.2.2 numba==0.56.4 psutil==5.9.0 
-pip3 install requests[socks] dill
-pip3 install ipykernel==6.19.2 matplotlib==3.7.1 #for visualization
-pip3 install ccxt #for trade
-if [[ $(arch) == "x86_64"  ]];then pip3 install torch==1.13.1+cpu -f https://download.pytorch.org/whl/torch_stable.html;
-elif [[ $(arch) == "aarch64"  ]];then pip3 install torch==1.13.1;
-else echo "You need install torch manually!"; fi
-#---------Clean Cache--------------
-du -sh $(pip3 cache dir) && pip3 cache purge && du -sh $(pip3 cache dir)
-apt autoremove && du -sh /var/cache/apt/archives && apt clean &&du -sh /var/cache/apt/archives
-#*******************************************************************************************************************************************************
